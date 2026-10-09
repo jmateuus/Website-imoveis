@@ -50,6 +50,12 @@ services:
       DEMO_DATA: ${DEMO_DATA:-false}
       NO_PROXY: "${NO_PROXY:-localhost,127.0.0.1},minio,postgres"
       no_proxy: "${NO_PROXY:-localhost,127.0.0.1},minio,postgres"
+    healthcheck:
+      test: [CMD, wget, -Y, "off", -q, -T, "3", -O, /dev/null, "http://127.0.0.1:8080/actuator/health"]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+      start_period: 60s
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,7 +66,8 @@ services:
   web:
     build: ./frontend
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     ports:
       - "127.0.0.1:8088:80"
 volumes:

@@ -14,6 +14,18 @@ docker compose up --build -d postgres minio api web
 
 O frontend usa a porta **8088**, a API **8080**, o PostgreSQL **5432** e o MinIO **9000** (console **9001**). As portas do Compose estão vinculadas ao loopback para desenvolvimento. Acesse o caminho `/admin` no frontend; o e-mail e a senha inicial ficam no `.env` local, com permissão `600`. Esse arquivo é ignorado pelo Git e nunca deve ser publicado. As credenciais são geradas aleatoriamente; não existe senha padrão no código.
 
+O frontend aguarda a API ficar saudável antes de iniciar. O Nginx consulta o DNS do Docker novamente quando o endereço da API muda, inclusive após recriar o contêiner. Para atualizar uma instalação existente, execute `git pull --ff-only` e `docker compose up --build -d --wait`; isso preserva o `.env` e os volumes. Use `docker compose ps` para conferir a API como `healthy`. Se houver falha, consulte `docker compose logs --tail=80 api web`.
+
+No navegador do seu computador, use os endereços abaixo. O painel do site e o console de armazenamento têm credenciais diferentes:
+
+| Página | Endereço local | Login |
+| --- | --- | --- |
+| Catálogo de imóveis | `http://localhost:8088` | Não exige login |
+| Painel do proprietário | `http://localhost:8088/admin` | `ADMIN_EMAIL` e `ADMIN_PASSWORD` do `.env` |
+| Console MinIO (armazenamento) | `http://localhost:9001` | `S3_ACCESS_KEY` e `S3_SECRET_KEY` do `.env` |
+
+Não é necessário entrar no MinIO para cadastrar imóveis ou enviar fotos: use o painel do proprietário. A API cria automaticamente o bucket local de armazenamento.
+
 O administrador só é criado se a tabela estiver vazia. Alterar `ADMIN_PASSWORD` posteriormente não altera a senha persistida. A recuperação da conta existente deve ser feita por uma operação administrativa controlada no banco, usando um novo hash BCrypt; não há recuperação pública de senha.
 
 Para ver exemplos, use `python3 scripts/init-local-env.py --demo` antes da primeira inicialização. Se o `.env` já existir, ele será preservado; configure `DEMO_DATA=true` nele. A carga de seis imóveis demonstrativos só acontece em um banco sem imóveis. As imagens são ilustrativas, geradas para o projeto, e os anúncios deixam explícito que não são ofertas reais. O WhatsApp fica vazio até o proprietário configurar um número verdadeiro.
