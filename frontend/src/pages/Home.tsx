@@ -37,11 +37,10 @@ export default function Home() {
       <section className="container hero">
         <div className="hero-copy">
           <span className="hero-pill">
-            <span className="green-dot" /> IMÓVEIS PARA ALUGAR, NOVAS HISTÓRIAS
-            PARA VIVER
+            <span className="green-dot" /> HOSPEDAGENS POR TEMPORADA NO NORDESTE
           </span>
-          <h1>{settings.heroTitle}</h1>
-          <p>{settings.heroText}</p>
+          <h1>Seu próximo destino começa aqui.</h1>
+          <p>Descubra hospedagens incríveis nas praias do Nordeste e aproveite cada momento da sua viagem.</p>
           <form
             className="hero-search"
             onSubmit={(e) => {
@@ -51,7 +50,7 @@ export default function Home() {
           >
             <Search size={21} />
             <input
-              aria-label="Onde você quer morar?"
+              aria-label="Qual praia ou destino você procura?"
               placeholder="Onde você quer morar?"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -82,14 +81,14 @@ export default function Home() {
             alt="Casa contemporânea com varanda, jardim e palmeiras ao entardecer — imagem ilustrativa"
             fetchPriority="high"
           />
-          <span className="hero-image-label">Um lugar para viver bem.</span>
+          <span className="hero-image-label">O seu refúgio à beira-mar.</span>
           <div className="hero-floating">
             <span>
               <KeyRound size={21} />
             </span>
             <div>
-              <strong>Seu próximo capítulo</strong>
-              <small>começa com uma boa escolha.</small>
+              <strong>Suas próximas férias</strong>
+              <small>começam com uma boa hospedagem.</small>
             </div>
             <ArrowUpRight size={20} />
           </div>
@@ -100,12 +99,12 @@ export default function Home() {
         <div className="container">
           <span>
             <House />
-            Espaços para a sua vida
+            Hospedagens para relaxar
           </span>
           <i />
           <span>
             <MapPin />
-            Lugares que conectam
+            Destinos no Nordeste
           </span>
           <i />
           <span>
@@ -120,7 +119,7 @@ export default function Home() {
             <span className="eyebrow">
               <Sparkles size={14} /> UMA SELEÇÃO ESPECIAL
             </span>
-            <h2>Imóveis em destaque</h2>
+            <h2>Hospedagens em destaque</h2>
             <p>Alguns lugares merecem um olhar mais de perto.</p>
           </div>
           <Link className="text-link" to="/imoveis">
@@ -150,8 +149,8 @@ export default function Home() {
           <div className="section-heading">
             <div>
               <span className="eyebrow">UM ESPAÇO QUE COMBINA COM VOCÊ</span>
-              <h2>Encontre sua próxima morada</h2>
-              <p>Um novo começo pode estar a poucos cliques de distância.</p>
+              <h2>Encontre sua hospedagem ideal</h2>
+              <p>Suas próximas férias começam com a escolha do lugar ideal.</p>
             </div>
           </div>
           <PropertyListing compact />
@@ -165,8 +164,7 @@ export default function Home() {
             <br />à primeira conversa.
           </h2>
           <p>
-            Você encontra o imóvel. A gente abre o caminho para o seu próximo
-            lar.
+            Você encontra o imóvel. A gente ajuda você a planejar sua próxima temporada.
           </p>
         </div>
         <div className="how-steps">
@@ -179,12 +177,12 @@ export default function Home() {
             {
               icon: House,
               title: "Conheça cada detalhe",
-              text: "Veja fotos, vídeos e informações para imaginar sua vida no novo espaço.",
+              text: "Veja fotos, vídeos e comodidades para planejar seus dias de descanso.",
             },
             {
               icon: MessageCircle,
               title: "Converse diretamente",
-              text: "Tire suas dúvidas e combine uma visita pelo WhatsApp com o proprietário.",
+              text: "Consulte valores e disponibilidade diretamente pelo WhatsApp.",
             },
           ].map(({ icon: Icon, title, text }, i) => (
             <div className="how-step" key={title}>
@@ -202,11 +200,10 @@ export default function Home() {
       </section>
       <section className="container contact-banner">
         <div>
-          <span className="eyebrow">VAMOS ENCONTRAR SEU LUGAR?</span>
-          <h2>Uma boa conversa faz toda a diferença.</h2>
+          <span className="eyebrow">VAMOS PLANEJAR SUA TEMPORADA?</span>
+          <h2>Sua próxima viagem merece uma hospedagem especial.</h2>
           <p>
-            Conte o que você procura. Vamos ajudar a encontrar a sua próxima
-            morada.
+            Encontrou o lugar ideal? Entre em contato e consulte a disponibilidade para sua próxima temporada.
           </p>
         </div>
         {contact ? (
