@@ -4,6 +4,7 @@ import PublicLayout from "@/components/PublicLayout";
 import Home from "@/pages/Home";
 import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/Feedback";
+const Contacts = lazy(() => import("@/pages/Contacts"));
 const Catalog = lazy(() => import("@/pages/Catalog"));
 const PropertyDetail = lazy(() => import("@/pages/PropertyDetail"));
 const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"));
@@ -16,10 +17,10 @@ function NotFound() {
   return (
     <div className="empty not-found">
       <span className="eyebrow">404</span>
-      <h1>Este caminho não leva a um imóvel.</h1>
-      <p>Volte ao catálogo para encontrar seu próximo lugar.</p>
+      <h1>Esta página não foi encontrada.</h1>
+      <p>Explore nossas hospedagens por temporada.</p>
       <Button asChild>
-        <Link to="/imoveis">Ver imóveis</Link>
+        <Link to="/imoveis">Ver hospedagens</Link>
       </Button>
     </div>
   );
@@ -31,6 +32,7 @@ export default function App() {
         <Route element={<PublicLayout />}>
           <Route index element={<Home />} />
           <Route path="imoveis" element={<Catalog />} />
+          <Route path="contatos" element={<Contacts />} />
           <Route path="imoveis/:slug" element={<PropertyDetail />} />
           <Route path="*" element={<NotFound />} />
         </Route>
