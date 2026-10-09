@@ -24,7 +24,7 @@ import {
 import { api } from "@/lib/api";
 import type { Media, PageResult, Property } from "@/lib/types";
 import { propertyTypes } from "@/lib/types";
-import { preciseMoney, whatsappUrl } from "@/lib/utils";
+import { whatsappUrl } from "@/lib/utils";
 import { useSettings } from "@/components/PublicLayout";
 import PropertyCard from "@/components/PropertyCard";
 import { Loading, Failure } from "@/components/Feedback";
@@ -162,7 +162,7 @@ export default function PropertyDetail() {
   useEffect(() => {
     if (query.data) document.title = `${query.data.title} | ${settings.name}`;
     return () => {
-      document.title = `${settings.name} — Imóveis para alugar`;
+      document.title = `${settings.name} — Hospedagens por temporada`;
     };
   }, [query.data, settings.name]);
   if (query.isPending) return <Loading />;
@@ -172,7 +172,7 @@ export default function PropertyDetail() {
         <Button asChild variant="ghost">
           <Link to="/imoveis">
             <ArrowLeft />
-            Voltar aos imóveis
+            Voltar às hospedagens
           </Link>
         </Button>
         <Failure error={query.error} retry={() => query.refetch()} />
@@ -195,7 +195,7 @@ export default function PropertyDetail() {
       <div className="breadcrumb">
         <Link to="/">Início</Link>
         <span>/</span>
-        <Link to="/imoveis">Imóveis</Link>
+        <Link to="/imoveis">Hospedagens</Link>
         <span>/</span>
         <span>{propertyTypes[property.type]}</span>
       </div>
@@ -212,7 +212,7 @@ export default function PropertyDetail() {
               className={`badge ${property.status === "DISPONIVEL" ? "available-badge" : "unavailable-badge"}`}
             >
               {property.status === "DISPONIVEL"
-                ? "Disponível para alugar"
+                ? "Hospedagem disponível"
                 : "Indisponível no momento"}
             </span>
           </div>
@@ -244,7 +244,7 @@ export default function PropertyDetail() {
       />
       <div className="detail-columns">
         <div className="detail-information">
-          <h2>Um espaço para a sua história.</h2>
+          <h2>Seu refúgio para descansar.</h2>
           <div className="detail-specs">
             {specs.map(({ icon: Icon, value, label }) => (
               <div key={label}>
@@ -255,7 +255,7 @@ export default function PropertyDetail() {
             ))}
           </div>
           <section className="detail-section">
-            <h2>Sobre o imóvel</h2>
+            <h2>Sobre a hospedagem</h2>
             <p className="description-text">{property.description}</p>
           </section>
           {property.amenities.length > 0 && (
@@ -300,12 +300,11 @@ export default function PropertyDetail() {
           </section>
         </div>
         <aside className="interest-card">
-          <span className="eyebrow">SEU PRÓXIMO LAR</span>
+          <span className="eyebrow">SUA PRÓXIMA TEMPORADA</span>
           <p className="detail-price">
-            <strong>{preciseMoney(property.rent)}</strong>
-            <span>/ mês</span>
+            <strong>Valores sob consulta</strong>
           </p>
-          {(property.condoFee != null || property.propertyTax != null) && (
+          {false && (property.condoFee != null || property.propertyTax != null) && (
             <div className="extra-costs">
               {property.condoFee != null && (
                 <p>
@@ -332,14 +331,13 @@ export default function PropertyDetail() {
             </div>
           )}
           <p className="interest-copy">
-            Gostou do que viu? Converse com o proprietário e descubra mais sobre
-            este imóvel.
+            Gostou desta hospedagem? Consulte valores e disponibilidade diretamente com a Privê Lopes.
           </p>
           {contact ? (
             <>
               <Button asChild size="lg">
                 <a href={contact} target="_blank" rel="noopener noreferrer">
-                  Tenho interesse neste imóvel
+                  Consultar disponibilidade pelo WhatsApp
                   <ArrowUpRight />
                 </a>
               </Button>
@@ -355,7 +353,7 @@ export default function PropertyDetail() {
             </>
           ) : (
             <p className="privacy-note">
-              Contato do proprietário em atualização.
+              Contato em atualização.
             </p>
           )}
           <div className="direct-note">
