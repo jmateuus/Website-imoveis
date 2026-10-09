@@ -174,19 +174,25 @@ Para Playwright, defina `CHROMIUM_PATH` para seu navegador Chromium/Chrome insta
 
 Airbnb e Vrbo foram consultados como referências de fotografia, vitrine e navegação por destinos. O Booking retornou uma página de verificação e sua interface não pôde ser avaliada. O desenho da Privê Lopes utiliza composição própria em azul, laranja, areia e branco.
 
-## Avaliar a evolução de hospedagens
+## Atualizar e avaliar a evolução de hospedagens
 
-A implementação está isolada na branch `feature/prive-lopes-hospedagens`; não há merge automático na `main`.
+A implementação aprovada está disponível na `main`. A branch `feature/prive-lopes-hospedagens` preserva a versão usada na avaliação. Para atualizar sua instalação existente:
 
 ```bash
 git fetch origin
-git switch feature/prive-lopes-hospedagens
+git switch main
 git pull --ff-only
+docker compose up --build -d --wait
+```
+
+O comando preserva o `.env` e os volumes existentes e aplica as migrações incrementais ao banco. Se preferir testar com dados separados, após atualizar o código execute:
+
+```bash
 docker compose -p website-imoveis stop
 docker compose -p prive-lopes-avaliacao up --build -d --wait
 ```
 
-A avaliação usa volumes separados para banco e armazenamento. A instalação original é pausada para liberar as mesmas portas e seus volumes são preservados. Para voltar: encerre os serviços com `docker compose -p prive-lopes-avaliacao stop`, execute `git switch main` e `docker compose up -d`. As novas migrações permanecem apenas no banco de avaliação.
+A avaliação usa volumes separados para banco e armazenamento. A instalação original é pausada para liberar as mesmas portas e seus volumes são preservados. Para retomar a instalação original: execute `docker compose -p prive-lopes-avaliacao stop` e `docker compose up --build -d --wait`. Ao atualizar a instalação original, as migrações também serão aplicadas ao banco dela.
 
 Quem já tem uma instalação deve preservar o `.env` e os volumes. A migração V3 atualiza somente os valores iniciais da marca anterior, preservando configurações personalizadas. As migrações V4/V5 adicionam a foto da home e adaptam somente os exemplos que ainda possuem a descrição original; anúncios reais, descrições editadas, slugs, mídias e credenciais permanecem válidos. Novos ambientes recebem `admin@privelopes.local` como e-mail inicial; instalações existentes continuam com o e-mail de seu próprio `.env`.
 
