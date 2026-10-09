@@ -24,7 +24,7 @@ import {
 import { api } from "@/lib/api";
 import type { Media, PageResult, Property } from "@/lib/types";
 import { propertyTypes } from "@/lib/types";
-import { whatsappUrl } from "@/lib/utils";
+import { preciseMoney, whatsappUrl } from "@/lib/utils";
 import { useSettings } from "@/components/PublicLayout";
 import PropertyCard from "@/components/PropertyCard";
 import { Loading, Failure } from "@/components/Feedback";
