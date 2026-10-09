@@ -88,6 +88,8 @@ class SiteSettings {
     @Column(name="rodape") String footer;
     @Column(name="logo_chave") String logoKey;
     @Column(name="logo_content_type") String logoContentType;
+    @Column(name="hero_chave") String heroKey;
+    @Column(name="hero_content_type") String heroContentType;
     protected SiteSettings() {}
 }
 

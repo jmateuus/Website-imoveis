@@ -143,11 +143,11 @@ function EditorForm({
           <div>
             <Link className="text-link" to="/admin/imoveis">
               <ArrowLeft size={15} />
-              Meus imóveis
+              Minhas hospedagens
             </Link>
             <h1>
               {property
-                ? "Editar imóvel"
+                ? "Editar hospedagem"
                 : "Uma nova hospedagem, novas possibilidades."}
             </h1>
             <p>
@@ -166,13 +166,13 @@ function EditorForm({
             )}
             <Button type="submit" disabled={form.formState.isSubmitting}>
               <Save />
-              {form.formState.isSubmitting ? "Salvando…" : "Salvar imóvel"}
+              {form.formState.isSubmitting ? "Salvando…" : "Salvar hospedagem"}
             </Button>
           </div>
         </div>
         {saved && (
           <div className="success-message" role="status">
-            Imóvel salvo com sucesso.
+            Hospedagem salva com sucesso.
           </div>
         )}
         {form.formState.errors.root && (
@@ -183,7 +183,7 @@ function EditorForm({
         <div className="editor-columns">
           <div>
             <section className="admin-panel editor-panel">
-              <h2>O essencial sobre o imóvel</h2>
+              <h2>O essencial sobre a hospedagem</h2>
               <label>
                 Título *
                 <input
@@ -194,7 +194,7 @@ function EditorForm({
                         shouldValidate: true,
                       });
                   }}
-                  placeholder="Ex.: Apartamento com varanda em Boa Viagem"
+                  placeholder="Ex.: Casa com piscina para uma temporada em Porto de Galinhas"
                   aria-invalid={!!error("title")}
                 />
                 {error("title") && (
@@ -205,10 +205,12 @@ function EditorForm({
                 URL do anúncio (slug)
                 <input
                   {...form.register("slug")}
-                  placeholder="apartamento-com-varanda-boa-viagem"
+                  placeholder="casa-com-piscina-porto-de-galinhas"
                   aria-invalid={!!error("slug")}
                 />
-                <small>/imoveis/{form.watch("slug") || "url-do-imovel"}</small>
+                <small>
+                  /imoveis/{form.watch("slug") || "url-da-hospedagem"}
+                </small>
                 {error("slug") && (
                   <small className="field-error">{error("slug")}</small>
                 )}
@@ -224,10 +226,19 @@ function EditorForm({
                     ))}
                   </select>
                 </label>
-                {field("rent", "Valor de referência (R$) *", "number")}
+                {field(
+                  "rent",
+                  "Valor de referência para temporada (R$) *",
+                  "number",
+                )}
                 {field("condoFee", "Condomínio (R$)", "number")}
                 {field("propertyTax", "IPTU (R$)", "number")}
               </div>
+              <p className="muted">
+                O valor de referência e as taxas ficam disponíveis no cadastro.
+                Os valores finais da estadia são combinados por período no
+                WhatsApp.
+              </p>
               <label>
                 Descrição *
                 <textarea
@@ -311,7 +322,7 @@ function EditorForm({
             <section className="admin-panel editor-panel publication-panel">
               <h2>Publicação</h2>
               <label>
-                Situação do imóvel
+                Situação da hospedagem
                 <select {...form.register("status")}>
                   {Object.entries(statuses).map(([v, label]) => (
                     <option key={v} value={v}>
@@ -330,7 +341,7 @@ function EditorForm({
               </label>
               <Button type="submit" disabled={form.formState.isSubmitting}>
                 <Save />
-                Salvar imóvel
+                Salvar hospedagem
               </Button>
               {property && (
                 <small className="muted">
@@ -341,7 +352,7 @@ function EditorForm({
             </section>
             <div className="editor-tip">
               <ImagePlus />
-              <h3>Mostre o melhor do seu imóvel.</h3>
+              <h3>Mostre o melhor da sua hospedagem.</h3>
               <p>
                 Adicione fotos bem iluminadas, organize a galeria e escolha uma
                 imagem principal.
@@ -357,7 +368,7 @@ function EditorForm({
           <div className="empty">
             <ImagePlus size={30} />
             <h3>As fotos entram no próximo passo.</h3>
-            <p>Salve o imóvel para adicionar fotos e vídeos à galeria.</p>
+            <p>Salve a hospedagem para adicionar fotos e vídeos à galeria.</p>
           </div>
         )}
       </section>

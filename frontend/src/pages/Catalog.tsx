@@ -13,6 +13,8 @@ import { api } from "@/lib/api";
 import type { PageResult, Property } from "@/lib/types";
 import { propertyTypes } from "@/lib/types";
 import PropertyCard from "@/components/PropertyCard";
+import Seo from "@/components/Seo";
+import { useSettings } from "@/components/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Empty, Failure, Loading } from "@/components/Feedback";
 function Filters({
@@ -35,14 +37,9 @@ function Filters({
     next.set("status", draft.status ?? "DISPONIVEL");
     apply(next);
   }
-  const count = [
-    "city",
-    "neighborhood",
-    "type",
-    "minPrice",
-    "maxPrice",
-    "minBedrooms",
-  ].filter((k) => params.get(k)).length;
+  const count = ["city", "neighborhood", "type", "minBedrooms"].filter((k) =>
+    params.get(k),
+  ).length;
   return (
     <form className="catalog-filters" onSubmit={submit}>
       <div className="search-row">
@@ -50,7 +47,7 @@ function Filters({
           <Search size={19} />
           <input
             aria-label="Pesquisar hospedagens"
-            placeholder="Cidade, bairro ou nome do imóvel"
+            placeholder="Praia, cidade ou nome da hospedagem"
             value={draft.search ?? ""}
             onChange={(e) => set("search", e.target.value)}
           />
@@ -67,22 +64,6 @@ function Filters({
           <SlidersHorizontal />
           Filtros {count > 0 && <span className="filter-count">{count}</span>}
         </Button>
-        <label className="sort-select">
-          <span className="sr-only">Ordenar imóveis</span>
-          <select
-            value={params.get("sort") ?? "recent"}
-            onChange={(e) => {
-              const next = new URLSearchParams(params);
-              next.set("sort", e.target.value);
-              next.delete("page");
-              apply(next);
-            }}
-          >
-            <option value="recent">Mais recentes</option>
-            <option value="price-asc">Menor preço</option>
-            <option value="price-desc">Maior preço</option>
-          </select>
-        </label>
       </div>
       {open && (
         <div className="filter-panel">
@@ -104,7 +85,7 @@ function Filters({
               />
             </label>
             <label>
-              Tipo de imóvel
+              Tipo de hospedagem
               <select
                 value={draft.type ?? ""}
                 onChange={(e) => set("type", e.target.value)}
@@ -116,26 +97,6 @@ function Filters({
                   </option>
                 ))}
               </select>
-            </label>
-            <label>
-              Valor mínimo informado (R$)
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={draft.minPrice ?? ""}
-                onChange={(e) => set("minPrice", e.target.value)}
-              />
-            </label>
-            <label>
-              Valor máximo informado (R$)
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={draft.maxPrice ?? ""}
-                onChange={(e) => set("maxPrice", e.target.value)}
-              />
             </label>
             <label>
               Quartos
@@ -272,8 +233,14 @@ export function PropertyListing({ compact = false }: { compact?: boolean }) {
   );
 }
 export default function Catalog() {
+  const settings = useSettings();
   return (
     <section className="container catalog-page">
+      <Seo
+        title={`Hospedagens por temporada | ${settings.name}`}
+        description="Explore fotos, comodidades e destinos. Encontre uma hospedagem para sua viagem e consulte o período diretamente pelo WhatsApp."
+        image={settings.heroImageUrl}
+      />
       <div className="breadcrumb">
         <Link to="/">Início</Link>
         <span>/</span>
@@ -282,7 +249,8 @@ export default function Catalog() {
       <span className="eyebrow">ENCONTRE SEU LUGAR</span>
       <h1>Sua próxima temporada começa aqui.</h1>
       <p className="section-description">
-        Explore hospedagens nas praias do Nordeste e escolha o cenário das suas próximas férias.
+        Explore hospedagens nas praias do Nordeste e escolha o cenário das suas
+        próximas férias.
       </p>
       <PropertyListing />
     </section>

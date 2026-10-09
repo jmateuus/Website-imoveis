@@ -14,8 +14,8 @@ try:
         target.chmod(0o600)
         out.write('POSTGRES_DB=imoveis\nPOSTGRES_USER=imoveis\n')
         out.write('POSTGRES_PASSWORD=' + secrets.token_urlsafe(32) + '\n')
-        out.write('S3_ACCESS_KEY=morada-local\nS3_SECRET_KEY=' + secrets.token_urlsafe(32) + '\n')
-        out.write('ADMIN_EMAIL=admin@morada.local\nADMIN_PASSWORD=' + secrets.token_urlsafe(24) + '\n')
+        out.write('S3_ACCESS_KEY=prive-lopes-local\nS3_SECRET_KEY=' + secrets.token_urlsafe(32) + '\n')
+        out.write('ADMIN_EMAIL=admin@privelopes.local\nADMIN_PASSWORD=' + secrets.token_urlsafe(24) + '\n')
         out.write('COOKIE_SECURE=false\nDEMO_DATA=' + ('true' if args.demo else 'false') + '\n')
     print('Configuração local criada em .env (permissão 600). Consulte a senha nesse arquivo; não publique-o.')
 except FileExistsError:

@@ -54,4 +54,7 @@ class CatalogController {
     @PostMapping("/api/admin/settings/logo") SettingsView logo(@RequestParam MultipartFile file) throws IOException { return settings.logo(file); }
     @DeleteMapping("/api/admin/settings/logo") @ResponseStatus(HttpStatus.NO_CONTENT) void deleteLogo() { settings.removeLogo(); }
     @GetMapping("/api/public/logo") ResponseEntity<InputStreamResource> readLogo() { return settings.readLogo(); }
+    @PostMapping("/api/admin/settings/hero") SettingsView hero(@RequestParam MultipartFile file) throws IOException { return settings.hero(file); }
+    @DeleteMapping("/api/admin/settings/hero") @ResponseStatus(HttpStatus.NO_CONTENT) void deleteHero() { settings.removeHero(); }
+    @GetMapping("/api/public/hero") ResponseEntity<InputStreamResource> readHero() { return settings.readHero(); }
 }

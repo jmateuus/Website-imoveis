@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
-  House,
+  Sun,
   ArrowUpRight,
   Menu,
   X,
@@ -28,11 +28,11 @@ export function Brand({ settings }: { settings?: Settings }) {
         <img src={settings.logoUrl} alt="" />
       ) : (
         <span className="brand-mark">
-          <House size={22} strokeWidth={1.7} />
+          <Sun size={26} strokeWidth={1.7} />
         </span>
       )}
       <span>
-        {"Privê Lopes | Hospedagens"}
+        {settings?.name ?? "Privê Lopes | Hospedagens"}
         <small>sol, praia e bons momentos</small>
       </span>
     </span>
@@ -45,6 +45,13 @@ export default function PublicLayout() {
   });
   const [menu, setMenu] = useState(false);
   const location = useLocation();
+  useEffect(() => {
+    const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (icon) {
+      icon.href = settings.data?.logoUrl ?? "/favicon.svg";
+      icon.type = settings.data?.logoUrl ? "image/jpeg" : "image/svg+xml";
+    }
+  }, [settings.data?.logoUrl]);
   useEffect(() => {
     setMenu(false);
     if (!location.hash) window.scrollTo(0, 0);
@@ -87,11 +94,11 @@ export default function PublicLayout() {
               Início
             </NavLink>
             <NavLink to="/imoveis">Explorar hospedagens</NavLink>
-            <Link to="/contatos">Contatos</Link>
+            <NavLink to="/contatos">Contatos</NavLink>
             {contact && (
               <Button asChild variant="outline">
                 <a href={contact} target="_blank" rel="noopener noreferrer">
-                  Vamos conversar <ArrowUpRight />
+                  Consulte disponibilidade <ArrowUpRight />
                 </a>
               </Button>
             )}
@@ -113,6 +120,7 @@ export default function PublicLayout() {
             <h3>Sua próxima temporada</h3>
             <Link to="/imoveis">Hospedagens disponíveis</Link>
             <Link to="/#como-funciona">Como funciona</Link>
+            <Link to="/contatos">Fale com a gente</Link>
           </div>
           <div>
             <h3>Planeje sua viagem</h3>

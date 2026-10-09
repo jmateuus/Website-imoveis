@@ -37,18 +37,18 @@ test("catálogo responsivo, navegação e busca vazia", async ({ page }, info) =
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Um novo lugar para chamar de seu." }),
+    page.getByRole("heading", { name: "Seu próximo destino começa aqui." }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Imóveis em destaque" }),
+    page.getByRole("heading", { name: "Hospedagens em destaque" }),
   ).toBeVisible();
   await page
-    .getByRole("textbox", { name: "Onde você quer morar?" })
+    .getByRole("textbox", { name: "Qual é o seu próximo destino?" })
     .fill("imovel-inexistente-xyz");
   await page.getByRole("button", { name: "Encontrar", exact: true }).click();
   await expect(page).toHaveURL(/imoveis\?search=/);
   await expect(
-    page.getByRole("heading", { name: "Nenhum imóvel encontrado" }),
+    page.getByRole("heading", { name: "Nenhuma hospedagem encontrada" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Filtros" }).click();
   await page.getByLabel("Cidade", { exact: true }).fill("Recife");
@@ -57,7 +57,7 @@ test("catálogo responsivo, navegação e busca vazia", async ({ page }, info) =
   await page.getByRole("button", { name: /Filtros/ }).click();
   await page.getByRole("button", { name: "Limpar filtros" }).click();
   await expect(
-    page.getByRole("textbox", { name: "Pesquisar imóveis" }),
+    page.getByRole("textbox", { name: "Pesquisar hospedagens" }),
   ).toHaveValue("");
   expect(
     await page.evaluate(
@@ -101,7 +101,7 @@ test("cadastro, mídia, publicação, WhatsApp e exclusão com confirmação", a
       .getByLabel("Descrição *", { exact: true })
       .fill("Um imóvel de teste completo, com varanda e iluminação natural.");
     await page
-      .getByLabel("Aluguel mensal (R$) *", { exact: true })
+      .getByLabel("Valor de referência para temporada (R$) *", { exact: true })
       .fill("1500.75");
     await page.getByLabel("Cidade *", { exact: true }).fill("Recife");
     await page
@@ -112,7 +112,7 @@ test("cadastro, mídia, publicação, WhatsApp e exclusão com confirmação", a
       .getByLabel("Endereço complementar", { exact: true })
       .fill("ENDERECO-PRIVADO-123");
     await page
-      .getByRole("button", { name: "Salvar imóvel", exact: true })
+      .getByRole("button", { name: "Salvar hospedagem", exact: true })
       .first()
       .click();
     await expect(page).toHaveURL(/\/admin\/imoveis\/[0-9a-f-]{36}$/);
@@ -143,20 +143,20 @@ test("cadastro, mídia, publicação, WhatsApp e exclusão com confirmação", a
       page.locator(".media-item").first().locator("video"),
     ).toBeVisible();
     await page
-      .getByRole("combobox", { name: "Situação do imóvel", exact: true })
+      .getByRole("combobox", { name: "Situação da hospedagem", exact: true })
       .selectOption("DISPONIVEL");
     await page
-      .getByRole("button", { name: "Salvar imóvel", exact: true })
+      .getByRole("button", { name: "Salvar hospedagem", exact: true })
       .first()
       .click();
-    await expect(page.getByText("Imóvel salvo com sucesso.")).toBeVisible();
+    await expect(page.getByText("Hospedagem salva com sucesso.")).toBeVisible();
     await page.goto(`/imoveis/${draft.slug}`);
     await expect(
       page.getByRole("heading", { name: title, exact: true }),
     ).toBeVisible();
     await expect(page.getByText("ENDERECO-PRIVADO-123")).toHaveCount(0);
     const whatsapp = page.getByRole("link", {
-      name: "Tenho interesse neste imóvel",
+      name: "Consultar disponibilidade",
     });
     const contact = new URL((await whatsapp.getAttribute("href"))!);
     expect(contact.host).toBe("wa.me");
@@ -197,7 +197,7 @@ test("cadastro, mídia, publicação, WhatsApp e exclusão com confirmação", a
     });
     await page.goto("/admin/imoveis");
     await page
-      .getByRole("textbox", { name: "Buscar imóveis no painel" })
+      .getByRole("textbox", { name: "Buscar hospedagens no painel" })
       .fill(title);
     await page.getByRole("button", { name: "Pesquisar", exact: true }).click();
     await page.getByRole("button", { name: `Excluir ${title}` }).click();
@@ -205,9 +205,9 @@ test("cadastro, mídia, publicação, WhatsApp e exclusão com confirmação", a
     await page.getByRole("button", { name: "Cancelar", exact: true }).click();
     await expect(page.getByRole("link", { name: title })).toBeVisible();
     await page.getByRole("button", { name: `Excluir ${title}` }).click();
-    await page.getByRole("button", { name: "Sim, excluir imóvel" }).click();
+    await page.getByRole("button", { name: "Sim, excluir hospedagem" }).click();
     await expect(
-      page.getByRole("heading", { name: "Nenhum imóvel encontrado" }),
+      page.getByRole("heading", { name: "Nenhuma hospedagem encontrada" }),
     ).toBeVisible();
     expect(
       (await page.request.get(`/api/public/properties/${draft.slug}`)).status(),
@@ -229,5 +229,114 @@ test("cadastro, mídia, publicação, WhatsApp e exclusão com confirmação", a
         `/api/admin/properties/${propertyId}`,
       );
     await mutate(page.request, "PUT", "/api/admin/settings", originalSettings);
+  }
+});
+
+test("configurações atualizam marca, apresentação, imagens e contato oficial", async ({
+  page,
+}, info) => {
+  await login(page.request);
+  const original = await (
+    await page.request.get("/api/public/settings")
+  ).json();
+  let logoCreated = false;
+  let heroCreated = false;
+  const name = `Privê Lopes | Hospedagens ${info.project.name}`;
+  const title = `Sua temporada de teste ${info.project.name}`;
+  try {
+    await page.goto("/admin/configuracoes");
+    await page.getByLabel("Nome da marca", { exact: true }).fill(name);
+    await page.getByLabel("Chamada principal", { exact: true }).fill(title);
+    await page
+      .getByLabel("Texto de apresentação", { exact: true })
+      .fill("Dias de descanso e conforto para a sua próxima viagem.");
+    await page.getByLabel("WhatsApp", { exact: true }).fill("5581995809198");
+    await page
+      .getByRole("button", { name: "Salvar alterações", exact: true })
+      .click();
+    await expect(
+      page.getByText("Configurações salvas com sucesso."),
+    ).toBeVisible();
+    if (!original.logoUrl) {
+      logoCreated = true;
+      await page
+        .getByLabel("Selecionar logotipo", { exact: true })
+        .setInputFiles(
+          path.join(root, "backend/src/main/resources/demo/casa.png"),
+        );
+      await expect(page.locator(".logo-preview")).toBeVisible();
+    }
+    if (!original.heroImageUrl) {
+      heroCreated = true;
+      await page
+        .getByLabel("Selecionar foto principal", { exact: true })
+        .setInputFiles(
+          path.join(root, "backend/src/main/resources/demo/casa.png"),
+        );
+      await expect(page.locator(".hero-preview")).toBeVisible();
+    }
+    const configured = await (
+      await page.request.get("/api/public/settings")
+    ).json();
+    await page.goto("/");
+    await expect(
+      page.getByRole("heading", { name: title, exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: `${name} — página inicial`, exact: true }),
+    ).toBeVisible();
+    await expect(page.locator(".hero-visual > img")).toHaveAttribute(
+      "src",
+      configured.heroImageUrl,
+    );
+    await expect(page.locator(".hero-caption")).toHaveCount(0);
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
+      "href",
+      configured.logoUrl,
+    );
+    const official =
+      "http://wa.me/5581995809198?text=Oi%2C+tenho+interesse+na+casa";
+    await expect(page.locator(".hero-actions a").first()).toHaveAttribute(
+      "href",
+      official,
+    );
+    await expect(page.locator(".whatsapp-float")).toHaveAttribute(
+      "href",
+      official,
+    );
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+    if (info.project.name === "mobile")
+      await page.getByRole("button", { name: "Abrir menu" }).click();
+    await page
+      .getByRole("navigation", { name: "Navegação principal" })
+      .getByRole("link", { name: "Contatos", exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/contatos$/);
+    await expect(
+      page.getByRole("heading", { name: "O que enviar na sua mensagem" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Falar pelo WhatsApp", exact: true }),
+    ).toHaveAttribute("href", official);
+    await expect(page).toHaveTitle(`Contatos | ${name}`);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: path.join(root, ".local", `contacts-${info.project.name}.png`),
+      fullPage: true,
+    });
+  } finally {
+    if (logoCreated)
+      await mutate(page.request, "DELETE", "/api/admin/settings/logo");
+    if (heroCreated)
+      await mutate(page.request, "DELETE", "/api/admin/settings/hero");
+    await mutate(page.request, "PUT", "/api/admin/settings", original);
   }
 });

@@ -33,12 +33,12 @@ export default function Dashboard() {
         <div>
           <span className="eyebrow">TUDO SOB SEU CONTROLE</span>
           <h1>Visão geral</h1>
-          <p>Um bom dia para encontrar novos moradores.</p>
+          <p>Um bom dia para encontrar novos hóspedes.</p>
         </div>
         <Button asChild>
           <Link to="/admin/imoveis/novo">
             <Plus />
-            Cadastrar imóvel
+            Cadastrar hospedagem
           </Link>
         </Button>
       </div>
@@ -50,7 +50,7 @@ export default function Dashboard() {
         <div className="stats-grid">
           {[
             {
-              label: "Imóveis cadastrados",
+              label: "Hospedagens cadastradas",
               value: dashboard.data.total,
               icon: House,
             },
@@ -83,7 +83,7 @@ export default function Dashboard() {
       <div className="admin-panel">
         <div className="panel-heading">
           <div>
-            <h2>Seus imóveis mais recentes</h2>
+            <h2>Suas hospedagens mais recentes</h2>
             <p>Continue de onde parou.</p>
           </div>
           <Link className="text-link" to="/admin/imoveis">
@@ -100,8 +100,8 @@ export default function Dashboard() {
             <table>
               <thead>
                 <tr>
-                  <th>Imóvel</th>
-                  <th>Aluguel</th>
+                  <th>Hospedagem</th>
+                  <th>Valor de referência</th>
                   <th>Situação</th>
                   <th>
                     <span className="sr-only">Ações</span>
@@ -152,7 +152,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <Empty
-            title="Vamos cadastrar o primeiro imóvel?"
+            title="Vamos cadastrar a primeira hospedagem?"
             text="Adicione as informações e publique quando estiver tudo pronto."
           />
         )}
@@ -160,10 +160,10 @@ export default function Dashboard() {
       <div className="admin-tip">
         <House size={28} strokeWidth={1.4} />
         <div>
-          <h3>Um anúncio completo faz a diferença.</h3>
+          <h3>Uma boa apresentação convida a viajar.</h3>
           <p>
-            Boas fotos, uma descrição clara e informações atualizadas ajudam seu
-            imóvel a encontrar a pessoa certa.
+            Boas fotos, uma descrição clara e informações atualizadas ajudam sua
+            hospedagem a receber novos hóspedes.
           </p>
         </div>
       </div>

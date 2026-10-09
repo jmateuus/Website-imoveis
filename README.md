@@ -1,6 +1,6 @@
-# Morada · Website de imóveis para aluguel
+# Privê Lopes | Hospedagens
 
-Catálogo em português, responsivo, com contato direto pelo WhatsApp e painel de um proprietário. React/TypeScript no frontend; API REST em Java 21, Spring Boot 3.5.16 e PostgreSQL. Fotos e vídeos ficam em armazenamento S3 privado. Não há reservas, pagamentos, chatbot ou login de visitantes.
+Vitrine em português de hospedagens por temporada no Nordeste, responsiva, com contato direto pelo WhatsApp e painel administrativo. React/TypeScript no frontend; API REST em Java 21, Spring Boot 3.5.16 e PostgreSQL. Fotos e vídeos ficam em armazenamento S3 privado. Não há reservas, pagamentos, chatbot ou login de visitantes.
 
 ## Executar com Docker
 
@@ -20,15 +20,15 @@ No navegador do seu computador, use os endereços abaixo. O painel do site e o c
 
 | Página | Endereço local | Login |
 | --- | --- | --- |
-| Catálogo de imóveis | `http://localhost:8088` | Não exige login |
+| Catálogo de hospedagens | `http://localhost:8088` | Não exige login |
 | Painel do proprietário | `http://localhost:8088/admin` | `ADMIN_EMAIL` e `ADMIN_PASSWORD` do `.env` |
 | Console MinIO (armazenamento) | `http://localhost:9001` | `S3_ACCESS_KEY` e `S3_SECRET_KEY` do `.env` |
 
-Não é necessário entrar no MinIO para cadastrar imóveis ou enviar fotos: use o painel do proprietário. A API cria automaticamente o bucket local de armazenamento.
+Não é necessário entrar no MinIO para cadastrar hospedagens ou enviar fotos: use o painel do proprietário. A API cria automaticamente o bucket local de armazenamento.
 
 O administrador só é criado se a tabela estiver vazia. Alterar `ADMIN_PASSWORD` posteriormente não altera a senha persistida. A recuperação da conta existente deve ser feita por uma operação administrativa controlada no banco, usando um novo hash BCrypt; não há recuperação pública de senha.
 
-Para ver exemplos, use `python3 scripts/init-local-env.py --demo` antes da primeira inicialização. Se o `.env` já existir, ele será preservado; configure `DEMO_DATA=true` nele. A carga de seis imóveis demonstrativos só acontece em um banco sem imóveis. As imagens são ilustrativas, geradas para o projeto, e os anúncios deixam explícito que não são ofertas reais. O WhatsApp fica vazio até o proprietário configurar um número verdadeiro.
+Para ver exemplos, use `python3 scripts/init-local-env.py --demo` antes da primeira inicialização. Se o `.env` já existir, ele será preservado; configure `DEMO_DATA=true` nele. A carga de seis hospedagens demonstrativas só acontece em um banco sem hospedagens. As imagens são ilustrativas, geradas para o projeto, e os anúncios deixam explícito que não são ofertas reais. A migração de identidade configura o número oficial `5581995809198` quando o contato ainda está vazio. Contatos personalizados já cadastrados são preservados e podem ser ajustados no painel.
 
 ## Desenvolvimento no ambiente de nuvem
 
@@ -64,14 +64,14 @@ Quando a API ou os testes Maven executarem fora do Docker, exponha o banco usand
 
 ## Funcionalidades
 
-- Página inicial com pesquisa, imóveis em destaque, catálogo e contato.
-- Listagem paginada com filtros por cidade, bairro, tipo, aluguel, quartos e disponibilidade; ordenação por preço ou data. Os filtros ficam na URL.
-- Detalhes em `/imoveis/:slug`, galeria ampliada acessível por teclado, fotos e vídeos, características opcionais, comodidades e imóveis relacionados.
+- Página inicial com pesquisa, hospedagens em destaque, catálogo, apresentação institucional e contato.
+- Listagem paginada com filtros por destino/cidade, bairro, tipo, quartos e disponibilidade; ordenados por cadastro recente. Os filtros ficam na URL.
+- Detalhes em `/imoveis/:slug`, galeria ampliada acessível por teclado, fotos e vídeos, características opcionais, comodidades, capacidade e hospedagens relacionadas.
 - Endereço privado por padrão, com publicação explicitamente controlada pelo administrador.
 - Links `wa.me` com mensagem contextual e URL do anúncio codificadas; contato flutuante global quando o número está configurado.
 - Painel em `/admin`: dashboard, CRUD, rascunhos, publicação, destaque e confirmação de exclusão.
 - Upload múltiplo com prévia e progresso, imagem principal, ordenação por arraste ou setas e exclusão individual confirmada.
-- Nome, logotipo, WhatsApp, e-mail, chamada inicial e rodapé configuráveis.
+- Nome da marca, logotipo, foto principal da home, WhatsApp, e-mail, chamada inicial e rodapé configuráveis.
 
 ## Organização
 
@@ -99,11 +99,11 @@ compose.yaml                             serviços e volumes de desenvolvimento
 
 | Rota | Uso |
 | --- | --- |
-| `GET /api/public/properties` | Consulta paginada de imóveis publicados |
+| `GET /api/public/properties` | Consulta paginada de hospedagens publicadas |
 | `GET /api/public/properties/{slug}` | Detalhes públicos |
 | `GET /api/public/amenities` | Comodidades disponíveis |
 | `GET /api/public/settings` | Configurações públicas |
-| `GET /api/public/media/{id}` | Mídia de um imóvel publicado, com suporte a Range |
+| `GET /api/public/media/{id}` | Mídia de uma hospedagem publicada, com suporte a Range |
 | `GET /api/auth/csrf` | Token e nome do cabeçalho CSRF |
 | `POST /api/auth/login` | Login do administrador |
 | `POST /api/auth/logout` | Encerramento da sessão |
@@ -116,6 +116,9 @@ compose.yaml                             serviços e volumes de desenvolvimento
 | `GET /api/admin/dashboard` | Totais do catálogo |
 | `PUT /api/admin/settings` | Configuração do site |
 | `POST /api/admin/settings/logo` | Upload de logotipo |
+| `POST /api/admin/settings/hero` | Upload da foto principal da home |
+| `DELETE /api/admin/settings/hero` | Retorna à imagem ilustrativa |
+| `GET /api/public/hero` | Foto principal configurada |
 
 Os parâmetros de listagem são `search`, `city`, `neighborhood`, `type`, `minPrice`, `maxPrice`, `minBedrooms`, `status`, `featured`, `page` (começa em zero), `size` (1–100) e `sort` (`recent`, `price-asc`, `price-desc`). Rascunhos não são acessíveis publicamente, inclusive suas mídias. Disponíveis e indisponíveis são publicados; a interface pública começa mostrando disponíveis.
 
@@ -125,12 +128,12 @@ O login usa BCrypt com custo 12, cookie de sessão HttpOnly/SameSite, rotação 
 
 ## Mídias e armazenamento
 
-Uploads são realizados pela API autenticada; não é necessário tornar o bucket público ou gravável por visitantes. O PostgreSQL guarda metadados e chaves organizadas por imóvel. As URLs públicas passam pela API, que confere a publicação antes de ler o objeto. Vídeos suportam requisições de intervalo, permitindo reprodução e avanço no navegador.
+Uploads são realizados pela API autenticada; não é necessário tornar o bucket público ou gravável por visitantes. O PostgreSQL guarda metadados e chaves organizadas por hospedagem. As URLs públicas passam pela API, que confere a publicação antes de ler o objeto. Vídeos suportam requisições de intervalo, permitindo reprodução e avanço no navegador.
 
 - Fotos: JPG/PNG, até 15 MB e 40 megapixels. O backend decodifica e redimensiona para até 1920 px, converte para JPEG e gera miniaturas de 480 px. Metadados EXIF são descartados.
 - Vídeos: MP4/WebM, até 100 MB, com validação do cabeçalho do arquivo. Não há transcodificação: utilize codecs aceitos pelos navegadores, como H.264 para MP4 e VP8/VP9 para WebM.
-- Até 30 mídias por imóvel. Vídeos não podem ser imagem principal.
-- Exclusão de imóvel, mídia ou logo registra as chaves em uma fila transacional. Um trabalhador tenta remover os objetos a cada 15 segundos, repetindo após falhas. Durante esse intervalo, os registros removidos já não são acessíveis pela API. Monitore a tabela `exclusao_objeto` e os logs se o armazenamento permanecer indisponível.
+- Até 30 mídias por hospedagem. Vídeos não podem ser imagem principal.
+- Exclusão de hospedagem, mídia, logo ou foto principal registra as chaves em uma fila transacional. Um trabalhador tenta remover os objetos a cada 15 segundos, repetindo após falhas. Durante esse intervalo, os registros removidos já não são acessíveis pela API. Monitore a tabela `exclusao_objeto` e os logs se o armazenamento permanecer indisponível.
 
 O MinIO local usa uma distribuição Bitnami Legacy, fixada por digest, pois os registros da distribuição oficial não estavam acessíveis no ambiente. Essa imagem é destinada ao desenvolvimento local e não recebe atualizações automáticas. O software MinIO utiliza AGPLv3; consulte a licença e as obrigações de distribuição. Em produção, utilize R2 ou um serviço S3 mantido.
 
@@ -169,4 +172,45 @@ Os testes de backend usam o PostgreSQL e MinIO locais, transações revertidas e
 
 Para Playwright, defina `CHROMIUM_PATH` para seu navegador Chromium/Chrome instalado; o padrão neste ambiente é `/usr/bin/chromium`. `E2E_BASE_URL` permite apontar para outro servidor de desenvolvimento. Use um banco dedicado ao desenvolvimento/testes, nunca o banco de produção. Screenshots e resultados ficam em diretórios ignorados. A execução da pipeline de CI requer publicar o código no repositório; os comandos foram validados nesta máquina.
 
-As referências QuintoAndar, ZAP e Airbnb orientam a especificação de cartões, filtros e navegação. O acesso direto aos sites estava bloqueado durante a implementação; nenhum design proprietário foi copiado.
+Airbnb e Vrbo foram consultados como referências de fotografia, vitrine e navegação por destinos. O Booking retornou uma página de verificação e sua interface não pôde ser avaliada. O desenho da Privê Lopes utiliza composição própria em azul, laranja, areia e branco.
+
+## Avaliar a evolução de hospedagens
+
+A implementação está isolada na branch `feature/prive-lopes-hospedagens`; não há merge automático na `main`.
+
+```bash
+git fetch origin
+git switch feature/prive-lopes-hospedagens
+git pull --ff-only
+docker compose -p website-imoveis stop
+docker compose -p prive-lopes-avaliacao up --build -d --wait
+```
+
+A avaliação usa volumes separados para banco e armazenamento. A instalação original é pausada para liberar as mesmas portas e seus volumes são preservados. Para voltar: encerre os serviços com `docker compose -p prive-lopes-avaliacao stop`, execute `git switch main` e `docker compose up -d`. As novas migrações permanecem apenas no banco de avaliação.
+
+Quem já tem uma instalação deve preservar o `.env` e os volumes. A migração V3 atualiza somente os valores iniciais da marca anterior, preservando configurações personalizadas. As migrações V4/V5 adicionam a foto da home e adaptam somente os exemplos que ainda possuem a descrição original; anúncios reais, descrições editadas, slugs, mídias e credenciais permanecem válidos. Novos ambientes recebem `admin@privelopes.local` como e-mail inicial; instalações existentes continuam com o e-mail de seu próprio `.env`.
+
+Os CTAs gerais usam o link oficial `http://wa.me/5581995809198?text=Oi%2C+tenho+interesse+na+casa`. A mensagem do anúncio inclui o título da hospedagem e sua URL. O WhatsApp continua configurável no painel. Preços e taxas antigos são mantidos como valores de referência no cadastro, sem apresentação de cobrança mensal na vitrine. Não existe calendário de reservas: o visitante consulta datas e valores diretamente pelo WhatsApp.
+
+### Arquivos visuais oficiais pendentes
+
+A logo oficial e a foto real da casa mencionadas na solicitação não estão disponíveis neste checkout nem nos anexos acessíveis. Não foram substituídas por imagens apresentadas como oficiais. Até serem fornecidas, a interface usa um símbolo de sol e a fotografia já existente, identificada como ilustrativa. Em **Configurações do site**, envie a logo em JPG/PNG e a foto em **Foto principal da home**. A logo também atualiza o favicon do navegador. A foto da home utiliza o processamento seguro de imagens e o mesmo armazenamento privado S3 já usado no catálogo.
+
+Não há comando de lint configurado no repositório. A revisão executa a checagem TypeScript incluída no build e `npx prettier --check src index.html e2e/catalog.spec.ts` em `frontend/`, além das suítes existentes e dos novos cenários de configuração/imagem principal.
+
+### Resumo da implementação e arquivos
+
+Foram reaproveitados o catálogo, os filtros, as rotas existentes, a autenticação administrativa, o CRUD, a galeria, os vídeos e o armazenamento S3. A página Contatos e a migração V3 já existiam parcialmente na branch e foram preservadas. A evolução ajusta identidade, linguagem, cards, navegação e apresentação do painel; adiciona configuração da foto principal, metadados por página e migrações incrementais V4/V5.
+
+Arquivos modificados nesta evolução, relativos à raiz do repositório:
+
+- Documentação e configuração: `README.md`, `scripts/init-local-env.py`, `frontend/package.json`, `frontend/package-lock.json`, `frontend/index.html`, `frontend/public/favicon.svg`.
+- Backend, em `backend/src/main/java/br/com/morada/catalog/`: `CatalogController.java`, `DemoData.java`, `Dtos.java`, `Models.java`, `SettingsService.java`.
+- Migrações novas, em `backend/src/main/resources/db/migration/`: `V4__imagem_principal_site.sql`, `V5__exemplos_hospedagens.sql`.
+- Componentes, em `frontend/src/components/`: `Feedback.tsx`, `MediaManager.tsx`, `PropertyCard.tsx`, `PublicLayout.tsx`, `ui/button.tsx` e o novo `Seo.tsx`.
+- Área pública, em `frontend/src/`: `App.tsx`, `styles.css`, `pages/Home.tsx`, `pages/Catalog.tsx`, `pages/PropertyDetail.tsx`, `pages/Contacts.tsx`.
+- Painel, em `frontend/src/pages/admin/`: `AdminLayout.tsx`, `Dashboard.tsx`, `Login.tsx`, `Properties.tsx`, `PropertyEditor.tsx`, `Settings.tsx`.
+- Tipos e validação, em `frontend/src/lib/`: `types.ts`, `utils.ts`, `property-schema.ts`.
+- Testes: `backend/src/test/java/br/com/morada/catalog/CatalogIntegrationTest.java`, `frontend/e2e/catalog.spec.ts`, `frontend/src/lib/property-schema.test.ts`, `frontend/src/lib/utils.test.ts`.
+
+Validação nesta implementação: Maven `verify` com 13 testes de integração aprovados; 8 testes unitários do frontend; build TypeScript/Vite e checagem Prettier aprovados; 8 cenários Playwright aprovados na versão Docker, entre desktop e celular. A revisão adicional de home e contatos em larguras de 390, 768 e 1440 px não encontrou erros JavaScript, imagens quebradas ou rolagem horizontal. O projeto Docker de avaliação foi iniciado com volumes novos e as seis hospedagens demonstrativas e suas mídias responderam à consulta pública.

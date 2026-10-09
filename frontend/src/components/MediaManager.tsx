@@ -51,7 +51,7 @@ export default function MediaManager({
     const next = Array.from(selection);
     setError(null);
     if (next.length + media.length > 30) {
-      setError(new Error("Cada imóvel pode conter até 30 mídias."));
+      setError(new Error("Cada hospedagem pode conter até 30 mídias."));
       return;
     }
     const invalid = next.find(

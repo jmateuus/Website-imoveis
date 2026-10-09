@@ -27,7 +27,9 @@ export function whatsappUrl(
   const text = property
     ? `Oi, tenho interesse na hospedagem ${property.title} que encontrei no site Privê Lopes | Hospedagens. Gostaria de consultar valores e disponibilidade. Link: ${origin}/imoveis/${property.slug}`
     : "Oi, tenho interesse na casa";
-  return property ? `https://wa.me/${number}?text=${encodeURIComponent(text)}` : `http://wa.me/${number}?text=Oi%2C+tenho+interesse+na+casa`;
+  return property
+    ? `https://wa.me/${number}?text=${encodeURIComponent(text)}`
+    : `http://wa.me/${number}?text=Oi%2C+tenho+interesse+na+casa`;
 }
 export function slugify(value: string) {
   return value

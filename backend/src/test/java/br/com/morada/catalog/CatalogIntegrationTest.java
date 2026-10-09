@@ -29,6 +29,7 @@ class CatalogIntegrationTest {
     @Autowired StorageService storage;
     @Autowired PropertyRepository properties;
     @Autowired MediaRepository mediaRepository;
+    @Autowired SettingsRepository siteSettings;
     @Autowired ObjectMapper mapper;
     @Value("${app.admin-email}") String adminEmail;
     @Value("${app.admin-password}") String adminPassword;
@@ -127,5 +128,23 @@ class CatalogIntegrationTest {
         var settings=new SettingsInput("Imóveis de teste","5581999999999",null,"Seu novo lugar","Boas histórias começam aqui.","Fale conosco.");
         mvc.perform(put("/api/admin/settings").with(user("admin").roles("ADMIN")).with(csrf()).contentType("application/json").content(mapper.writeValueAsString(settings))).andExpect(status().isOk()).andExpect(jsonPath("$.whatsapp").value("5581999999999"));
         mvc.perform(get("/api/public/settings")).andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Imóveis de teste"));
+    }
+    @Test void siteHeroUploadRequiresAdminAndSupportsReplacementAndRemoval() throws Exception {
+        var file=image("casa-principal.png");
+        mvc.perform(multipart("/api/admin/settings/hero").file(file).with(csrf())).andExpect(status().isUnauthorized());
+        mvc.perform(multipart("/api/admin/settings/hero").file(file).with(user("admin").roles("ADMIN"))).andExpect(status().isForbidden());
+        mvc.perform(multipart("/api/admin/settings/hero").file(file).with(user("admin").roles("ADMIN")).with(csrf()))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.heroImageUrl").value(org.hamcrest.Matchers.startsWith("/api/public/hero?v=")));
+        String first=siteSettings.findById(1).orElseThrow().heroKey;uploaded.add(first);
+        var bytes=mvc.perform(get("/api/public/hero")).andExpect(status().isOk()).andExpect(content().contentType("image/jpeg")).andReturn().getResponse().getContentAsByteArray();
+        assertThat(ImageIO.read(new java.io.ByteArrayInputStream(bytes)).getWidth()).isEqualTo(1920);
+        var forged=new MockMultipartFile("file","forged.png","image/png","not an image".getBytes());
+        mvc.perform(multipart("/api/admin/settings/hero").file(forged).with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isBadRequest());
+        assertThat(siteSettings.findById(1).orElseThrow().heroKey).isEqualTo(first);
+        mvc.perform(multipart("/api/admin/settings/hero").file(file).with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isOk());
+        String second=siteSettings.findById(1).orElseThrow().heroKey;uploaded.add(second);assertThat(second).isNotEqualTo(first);
+        mvc.perform(delete("/api/admin/settings/hero").with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isNoContent());
+        mvc.perform(get("/api/public/hero")).andExpect(status().isNotFound());
+        mvc.perform(get("/api/public/settings")).andExpect(jsonPath("$.heroImageUrl").doesNotExist());
     }
 }

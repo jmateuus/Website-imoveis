@@ -32,7 +32,7 @@ export function Failure({
   );
 }
 export function Empty({
-  title = "Nenhum imóvel encontrado",
+  title = "Nenhuma hospedagem encontrada",
   text = "Experimente ajustar os filtros ou volte em breve para conferir as novidades.",
 }: {
   title?: string;

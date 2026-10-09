@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { api, ApiError, resetCsrf } from "@/lib/api";
 import { Brand } from "@/components/PublicLayout";
+import Seo from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 import { Failure, Loading } from "@/components/Feedback";
 import type { Settings } from "@/lib/types";
@@ -45,12 +46,17 @@ export default function AdminLayout() {
   }
   return (
     <div className="admin-shell">
+      <Seo
+        title={`Painel de hospedagens | ${settings.data?.name ?? "Privê Lopes | Hospedagens"}`}
+        description="Área administrativa para gerenciar hospedagens e conteúdo do site."
+        noindex
+      />
       <aside className="admin-sidebar">
         <Link to="/">
           <Brand settings={settings.data} />
         </Link>
         <span className="admin-section-label">
-          <ShieldCheck size={13} /> ÁREA DO PROPRIETÁRIO
+          <ShieldCheck size={13} /> ÁREA ADMINISTRATIVA
         </span>
         <nav aria-label="Navegação administrativa">
           <NavLink to="/admin" end>
@@ -59,7 +65,7 @@ export default function AdminLayout() {
           </NavLink>
           <NavLink to="/admin/imoveis">
             <House size={19} />
-            Meus imóveis
+            Minhas hospedagens
           </NavLink>
           <NavLink to="/admin/configuracoes">
             <Settings2 size={19} />
@@ -82,7 +88,7 @@ export default function AdminLayout() {
       </aside>
       <div className="admin-main">
         <div className="admin-topbar">
-          <span>Painel do proprietário</span>
+          <span>Painel de hospedagens</span>
           <span className="admin-session">
             <span className="green-dot" />
             Sessão protegida

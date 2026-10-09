@@ -8,6 +8,7 @@ import { useState } from "react";
 import { api, resetCsrf } from "@/lib/api";
 import type { Settings } from "@/lib/types";
 import { Brand } from "@/components/PublicLayout";
+import Seo from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 const schema = z.object({
   email: z.string().email("Informe um e-mail válido."),
@@ -42,16 +43,24 @@ export default function Login() {
   }
   return (
     <div className="login-page">
+      <Seo
+        title={`Área administrativa | ${settings.data?.name ?? "Privê Lopes | Hospedagens"}`}
+        description="Área administrativa para gerenciar hospedagens e conteúdo do site."
+        noindex
+      />
       <div className="login-image">
-        <img src="/images/hero.jpg" alt="Casa com jardim e varanda" />
+        <img
+          src={settings.data?.heroImageUrl ?? "/images/hero.jpg"}
+          alt="Hospedagem em destaque"
+        />
         <div>
           <Brand settings={settings.data} />
           <h1>
-            Bons lugares.
+            Boas estadias.
             <br />
-            Novos começos.
+            Novos momentos.
           </h1>
-          <p>Cuide dos seus imóveis. Abra as portas para novas histórias.</p>
+          <p>Cuide das suas hospedagens e prepare o próximo encontro.</p>
         </div>
       </div>
       <div className="login-area">
@@ -63,9 +72,9 @@ export default function Login() {
           <span className="empty-icon">
             <LockKeyhole />
           </span>
-          <span className="eyebrow">ÁREA DO PROPRIETÁRIO</span>
+          <span className="eyebrow">ÁREA ADMINISTRATIVA</span>
           <h2>Bem-vindo de volta.</h2>
-          <p>Entre para cuidar dos seus imóveis.</p>
+          <p>Entre para cuidar das suas hospedagens.</p>
           <form onSubmit={form.handleSubmit(submit)}>
             <label>
               E-mail

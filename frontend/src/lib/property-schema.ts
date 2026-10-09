@@ -23,11 +23,13 @@ export const propertySchema = z
     description: z
       .string()
       .trim()
-      .min(10, "Descreva o imóvel com ao menos 10 caracteres.")
+      .min(10, "Descreva a hospedagem com ao menos 10 caracteres.")
       .max(20000),
     type: z.enum(["CASA", "APARTAMENTO", "KITNET", "FLAT", "SOBRADO", "OUTRO"]),
     rent: z
-      .number({ invalid_type_error: "Informe o valor do aluguel." })
+      .number({
+        invalid_type_error: "Informe um valor de referência para a temporada.",
+      })
       .positive("Informe um valor maior que zero.")
       .max(9999999999.99),
     condoFee: amount,

@@ -40,7 +40,7 @@ final class Dtos {
         @NotNull @Pattern(regexp="^$|[1-9][0-9]{9,14}") String whatsapp,
         @Email @Size(max=254) String email, @NotBlank @Size(max=160) String heroTitle,
         @NotBlank @Size(max=500) String heroText, @NotBlank @Size(max=500) String footer) {}
-    record SettingsView(String name, String whatsapp, String email, String heroTitle, String heroText, String footer, String logoUrl) {}
+    record SettingsView(String name, String whatsapp, String email, String heroTitle, String heroText, String footer, String logoUrl, String heroImageUrl) {}
     record LoginInput(@NotBlank @Email String email, @NotBlank @Size(max=200) String password) {}
     record ErrorView(String message, Map<String, String> fields) {}
 }

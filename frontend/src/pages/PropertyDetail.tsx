@@ -24,9 +24,10 @@ import {
 import { api } from "@/lib/api";
 import type { Media, PageResult, Property } from "@/lib/types";
 import { propertyTypes } from "@/lib/types";
-import { preciseMoney, whatsappUrl } from "@/lib/utils";
+import { whatsappUrl } from "@/lib/utils";
 import { useSettings } from "@/components/PublicLayout";
 import PropertyCard from "@/components/PropertyCard";
+import Seo from "@/components/Seo";
 import { Loading, Failure } from "@/components/Feedback";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,7 +67,7 @@ function Gallery({ media, title }: { media: Media[]; title: string }) {
     return (
       <div className="gallery-empty">
         <House size={50} strokeWidth={1} />
-        <p>Fotos deste imóvel em breve</p>
+        <p>Fotos desta hospedagem em breve</p>
       </div>
     );
   return (
@@ -159,12 +160,6 @@ export default function PropertyDetail() {
         "/api/public/properties?status=DISPONIVEL&size=4",
       ),
   });
-  useEffect(() => {
-    if (query.data) document.title = `${query.data.title} | ${settings.name}`;
-    return () => {
-      document.title = `${settings.name} — Hospedagens por temporada`;
-    };
-  }, [query.data, settings.name]);
   if (query.isPending) return <Loading />;
   if (query.isError)
     return (
@@ -192,6 +187,14 @@ export default function PropertyDetail() {
     related.data?.content.filter((p) => p.id !== property.id).slice(0, 3) ?? [];
   return (
     <section className="container detail-page">
+      <Seo
+        title={`${property.title} | ${settings.name}`}
+        description={property.description.slice(0, 160)}
+        image={
+          property.media.find((media) => media.primaryImage)?.url ??
+          settings.heroImageUrl
+        }
+      />
       <div className="breadcrumb">
         <Link to="/">Início</Link>
         <span>/</span>
@@ -277,8 +280,8 @@ export default function PropertyDetail() {
               <span>
                 <Armchair size={18} />
                 {property.furnished
-                  ? "Imóvel mobiliado"
-                  : "Imóvel não mobiliado"}
+                  ? "Hospedagem mobiliada"
+                  : "Hospedagem não mobiliada"}
               </span>
               <span>
                 <PawPrint size={18} />
@@ -304,40 +307,15 @@ export default function PropertyDetail() {
           <p className="detail-price">
             <strong>Valores sob consulta</strong>
           </p>
-          {false && (property.condoFee != null || property.propertyTax != null) && (
-            <div className="extra-costs">
-              {property.condoFee != null && (
-                <p>
-                  <span>Condomínio / mês</span>
-                  <strong>{preciseMoney(property.condoFee)}</strong>
-                </p>
-              )}
-              {property.propertyTax != null && (
-                <p>
-                  <span>IPTU / mês</span>
-                  <strong>{preciseMoney(property.propertyTax)}</strong>
-                </p>
-              )}
-              <p className="total-cost">
-                <span>Total mensal informado</span>
-                <strong>
-                  {preciseMoney(
-                    property.rent +
-                      (property.condoFee ?? 0) +
-                      (property.propertyTax ?? 0),
-                  )}
-                </strong>
-              </p>
-            </div>
-          )}
           <p className="interest-copy">
-            Gostou desta hospedagem? Consulte valores e disponibilidade diretamente com a Privê Lopes.
+            Gostou desta hospedagem? Conte suas datas e o número de hóspedes
+            para consultar valores e disponibilidade.
           </p>
           {contact ? (
             <>
               <Button asChild size="lg">
                 <a href={contact} target="_blank" rel="noopener noreferrer">
-                  Consultar disponibilidade pelo WhatsApp
+                  Consultar disponibilidade
                   <ArrowUpRight />
                 </a>
               </Button>
@@ -352,9 +330,7 @@ export default function PropertyDetail() {
               </a>
             </>
           ) : (
-            <p className="privacy-note">
-              Contato em atualização.
-            </p>
+            <p className="privacy-note">Contato em atualização.</p>
           )}
           <div className="direct-note">
             <ShieldCheck size={16} />

@@ -66,13 +66,13 @@ export default function Properties() {
       <div className="admin-heading">
         <div>
           <span className="eyebrow">SEU CATÁLOGO</span>
-          <h1>Meus imóveis</h1>
+          <h1>Minhas hospedagens</h1>
           <p>Cadastre, atualize e dê visibilidade aos seus espaços.</p>
         </div>
         <Button asChild>
           <Link to="/admin/imoveis/novo">
             <Plus />
-            Cadastrar imóvel
+            Cadastrar hospedagem
           </Link>
         </Button>
       </div>
@@ -89,7 +89,7 @@ export default function Properties() {
             <Search size={18} />
             <input
               placeholder="Buscar por título, bairro ou cidade"
-              aria-label="Buscar imóveis no painel"
+              aria-label="Buscar hospedagens no painel"
               value={draftSearch}
               onChange={(e) => setDraftSearch(e.target.value)}
             />
@@ -124,8 +124,8 @@ export default function Properties() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Imóvel</th>
-                      <th>Aluguel / mês</th>
+                      <th>Hospedagem</th>
+                      <th>Valor de referência</th>
                       <th>Situação</th>
                       <th>Ações</th>
                     </tr>
@@ -225,10 +225,10 @@ export default function Properties() {
         }}
       >
         <DialogContent>
-          <DialogTitle>Excluir este imóvel?</DialogTitle>
+          <DialogTitle>Excluir esta hospedagem?</DialogTitle>
           <DialogDescription>
-            O imóvel “{deleting?.title}” e todas as suas mídias serão removidos.
-            Esta ação não pode ser desfeita.
+            A hospedagem “{deleting?.title}” e todas as suas mídias serão
+            removidas. Esta ação não pode ser desfeita.
           </DialogDescription>
           {!!error && <Failure error={error} />}
           <div className="dialog-actions">
@@ -240,7 +240,7 @@ export default function Properties() {
               Cancelar
             </Button>
             <Button variant="destructive" disabled={busy} onClick={remove}>
-              {busy ? "Excluindo…" : "Sim, excluir imóvel"}
+              {busy ? "Excluindo…" : "Sim, excluir hospedagem"}
             </Button>
           </div>
         </DialogContent>

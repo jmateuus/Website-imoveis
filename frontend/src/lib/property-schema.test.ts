@@ -25,11 +25,11 @@ const valid = {
   status: "RASCUNHO",
   amenityIds: [],
 };
-describe("formulário de imóveis", () => {
+describe("formulário de hospedagens", () => {
   it("aceita características opcionais sem inventar valores", () => {
     expect(propertySchema.parse(valid).bedrooms).toBeNull();
   });
-  it("recusa aluguel inválido, estado desconhecido e suites incompatíveis", () => {
+  it("recusa valor inválido, estado desconhecido e suites incompatíveis", () => {
     expect(propertySchema.safeParse({ ...valid, rent: -1 }).success).toBe(
       false,
     );

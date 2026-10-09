@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { money, slugify, whatsappUrl } from "./utils";
 describe("WhatsApp", () => {
-  it("gera o contato contextual com mensagem codificada e URL do imóvel", () => {
+  it("preserva o link oficial nos contatos gerais", () => {
+    expect(
+      whatsappUrl("5581995809198", undefined, "https://privelopes.example"),
+    ).toBe("http://wa.me/5581995809198?text=Oi%2C+tenho+interesse+na+casa");
+  });
+  it("gera o contato contextual com mensagem codificada e URL da hospedagem", () => {
     const result = whatsappUrl(
       "5581999999999",
       {
@@ -10,13 +15,13 @@ describe("WhatsApp", () => {
         city: "Recife",
         slug: "casa-jardim",
       },
-      "https://morada.example",
+      "https://privelopes.example",
     );
     const url = new URL(result!);
     expect(url.host).toBe("wa.me");
     expect(url.pathname).toBe("/5581999999999");
     expect(url.searchParams.get("text")).toBe(
-      "Oi, tenho interesse na hospedagem Casa & Jardim que encontrei no site Privê Lopes | Hospedagens. Gostaria de consultar valores e disponibilidade. Link: https://morada.example/imoveis/casa-jardim",
+      "Oi, tenho interesse na hospedagem Casa & Jardim que encontrei no site Privê Lopes | Hospedagens. Gostaria de consultar valores e disponibilidade. Link: https://privelopes.example/imoveis/casa-jardim",
     );
     expect(result).not.toContain("Casa & Jardim");
   });
@@ -28,12 +33,12 @@ describe("WhatsApp", () => {
       "javascript:alert(1)",
     ])
       expect(
-        whatsappUrl(number, undefined, "https://morada.example"),
+        whatsappUrl(number, undefined, "https://privelopes.example"),
       ).toBeNull();
   });
-  it("gera contato geral sem referência a um imóvel", () => {
+  it("gera contato geral sem referência a uma hospedagem", () => {
     const url = new URL(
-      whatsappUrl("5581999999999", undefined, "https://morada.example")!,
+      whatsappUrl("5581999999999", undefined, "https://privelopes.example")!,
     );
     expect(url.searchParams.get("text")).toContain(
       "Oi, tenho interesse na casa",
@@ -41,7 +46,7 @@ describe("WhatsApp", () => {
   });
 });
 describe("apresentação", () => {
-  it("mantém os centavos do aluguel", () => {
+  it("mantém os centavos do valor de referência", () => {
     expect(money(1200.75)).toContain("1.200,75");
   });
   it("normaliza a URL de títulos com acentos", () => {

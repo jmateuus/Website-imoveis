@@ -31,6 +31,21 @@ class SettingsService {
         catalog.queueDelete(s.logoKey);s.logoKey=key;s.logoContentType="image/jpeg";
         return view(s);
     }
+    SettingsView hero(MultipartFile file) throws IOException {
+        if (!"image/png".equals(file.getContentType()) && !"image/jpeg".equals(file.getContentType())) throw CatalogService.bad("Use JPG ou PNG para a foto principal.");
+        var optimized=MediaService.optimize(file);
+        SiteSettings s=settings.findById(1).orElseThrow();
+        String key="site/hero/"+UUID.randomUUID()+".jpg";
+        storage.put(key,"image/jpeg",optimized.full());
+        catalog.queueDelete(s.heroKey);s.heroKey=key;s.heroContentType="image/jpeg";
+        return view(s);
+    }
+    void removeHero() { SiteSettings s=settings.findById(1).orElseThrow();catalog.queueDelete(s.heroKey);s.heroKey=null;s.heroContentType=null; }
+    @Transactional(readOnly=true) ResponseEntity<InputStreamResource> readHero() {
+        var s=settings.findById(1).orElseThrow();
+        if (s.heroKey==null) throw CatalogService.notFound();
+        return storage.read(s.heroKey,null,false);
+    }
     void removeLogo() { SiteSettings s=settings.findById(1).orElseThrow();catalog.queueDelete(s.logoKey);s.logoKey=null;s.logoContentType=null; }
     @Transactional(readOnly=true) ResponseEntity<InputStreamResource> readLogo() {
         var s=settings.findById(1).orElseThrow();
@@ -38,6 +53,6 @@ class SettingsService {
         return storage.read(s.logoKey,null,false);
     }
     private SettingsView view(SiteSettings s) {
-        return new SettingsView(s.name,s.whatsapp,s.email,s.heroTitle,s.heroText,s.footer,s.logoKey==null?null:"/api/public/logo?v="+s.logoKey.substring(5,41));
+        return new SettingsView(s.name,s.whatsapp,s.email,s.heroTitle,s.heroText,s.footer,s.logoKey==null?null:"/api/public/logo?v="+s.logoKey.substring(5,41),s.heroKey==null?null:"/api/public/hero?v="+s.heroKey.substring(10,46));
     }
 }

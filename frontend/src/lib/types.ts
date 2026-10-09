@@ -60,6 +60,7 @@ export interface Settings {
   heroText: string;
   footer: string;
   logoUrl?: string;
+  heroImageUrl?: string;
 }
 export interface Dashboard {
   total: number;

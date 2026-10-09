@@ -7,10 +7,12 @@ import {
   MapPin,
   ArrowUpRight,
   House,
+  MessageCircle,
 } from "lucide-react";
 import type { Property } from "@/lib/types";
 import { propertyTypes } from "@/lib/types";
-import { cover } from "@/lib/utils";
+import { cover, whatsappUrl } from "@/lib/utils";
+import { useSettings } from "@/components/PublicLayout";
 export function PropertySpecs({ property }: { property: Property }) {
   const specs = [
     { value: property.bedrooms, icon: BedDouble, label: "quartos" },
@@ -37,6 +39,8 @@ export function PropertySpecs({ property }: { property: Property }) {
 }
 export default function PropertyCard({ property }: { property: Property }) {
   const image = cover(property);
+  const settings = useSettings();
+  const contact = whatsappUrl(settings.whatsapp, property);
   return (
     <article className="property-card">
       <Link
@@ -74,15 +78,35 @@ export default function PropertyCard({ property }: { property: Property }) {
         <h3>
           <Link to={`/imoveis/${property.slug}`}>{property.title}</Link>
         </h3>
+        <p className="card-description">{property.description}</p>
         <PropertySpecs property={property} />
+        {property.amenities.length > 0 && (
+          <div className="card-amenities">
+            {property.amenities.slice(0, 2).map((amenity) => (
+              <span key={amenity.id}>{amenity.name}</span>
+            ))}
+          </div>
+        )}
         <div className="card-bottom">
           <p>
-            <strong>Consulte valores</strong>
+            <strong>Planeje sua estadia</strong>
           </p>
           <Link className="detail-link" to={`/imoveis/${property.slug}`}>
             Ver detalhes <ArrowUpRight size={16} />
           </Link>
         </div>
+        {contact && (
+          <a
+            className="card-contact"
+            href={contact}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Consultar ${property.title} pelo WhatsApp`}
+          >
+            <MessageCircle size={16} /> Consulte disponibilidade{" "}
+            <ArrowUpRight size={15} />
+          </a>
+        )}
       </div>
     </article>
   );

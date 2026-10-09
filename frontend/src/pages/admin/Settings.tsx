@@ -24,18 +24,107 @@ const schema = z.object({
   heroText: z.string().trim().min(1).max(500),
   footer: z.string().trim().min(1).max(500),
 });
+function SiteImageUploader({
+  settings,
+  kind,
+}: {
+  settings: SiteSettings;
+  kind: "logo" | "hero";
+}) {
+  const client = useQueryClient();
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<unknown>(null);
+  const current = kind === "logo" ? settings.logoUrl : settings.heroImageUrl;
+  const title = kind === "logo" ? "Logotipo" : "Foto principal da home";
+  const label =
+    kind === "logo" ? "Selecionar logotipo" : "Selecionar foto principal";
+  async function upload(file?: File) {
+    if (!file) return;
+    setError(null);
+    if (
+      !["image/jpeg", "image/png"].includes(file.type) ||
+      file.size > 15 * 1024 * 1024
+    ) {
+      setError(new Error("Use JPG ou PNG de até 15 MB."));
+      return;
+    }
+    setUploading(true);
+    setProgress(0);
+    try {
+      await uploadFile(`/api/admin/settings/${kind}`, file, setProgress);
+      await client.invalidateQueries({ queryKey: ["settings"] });
+    } catch (failure) {
+      setError(failure);
+    } finally {
+      setUploading(false);
+    }
+  }
+  async function remove() {
+    setError(null);
+    setUploading(true);
+    try {
+      await api(`/api/admin/settings/${kind}`, { method: "DELETE" });
+      await client.invalidateQueries({ queryKey: ["settings"] });
+    } catch (failure) {
+      setError(failure);
+    } finally {
+      setUploading(false);
+    }
+  }
+  return (
+    <section className="admin-panel editor-panel logo-panel">
+      <h2>{title}</h2>
+      <p className="muted">
+        {kind === "logo"
+          ? "Envie a logo oficial em JPG ou PNG. Ela aparece no cabeçalho, rodapé, painel e ícone do navegador. Sem uma logo, usamos um símbolo de sol."
+          : "Envie a foto real da casa que vai abrir a página inicial. Sem uma foto configurada, usamos a imagem atual com a indicação de que é ilustrativa."}
+      </p>
+      {current && (
+        <img
+          className={kind === "logo" ? "logo-preview" : "hero-preview"}
+          src={current}
+          alt={title}
+        />
+      )}
+      <label className="upload-zone">
+        <UploadCloud />
+        <strong>{uploading ? `Enviando… ${progress}%` : label}</strong>
+        <input
+          type="file"
+          accept="image/jpeg,image/png"
+          disabled={uploading}
+          onChange={(event) => {
+            upload(event.target.files?.[0]);
+            event.target.value = "";
+          }}
+          aria-label={label}
+        />
+      </label>
+      {current && (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={uploading}
+          onClick={remove}
+        >
+          {kind === "logo" ? "Usar símbolo padrão" : "Usar imagem ilustrativa"}
+        </Button>
+      )}
+      {!!error && <Failure error={error} />}
+    </section>
+  );
+}
 function SettingsForm({ settings }: { settings: SiteSettings }) {
   const client = useQueryClient();
   const [saved, setSaved] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [uploadError, setUploadError] = useState<unknown>(null);
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: { ...settings, email: settings.email ?? "" },
   });
   async function submit(values: z.infer<typeof schema>) {
     setSaved(false);
+    form.clearErrors("root");
     try {
       await api("/api/admin/settings", {
         method: "PUT",
@@ -48,26 +137,6 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
       form.setError("root", {
         message: e instanceof Error ? e.message : "Não foi possível salvar.",
       });
-    }
-  }
-  async function logo(file?: File) {
-    if (!file) return;
-    setUploadError(null);
-    if (
-      !["image/jpeg", "image/png"].includes(file.type) ||
-      file.size > 15 * 1024 * 1024
-    ) {
-      setUploadError(new Error("Use JPG ou PNG de até 15 MB."));
-      return;
-    }
-    setUploading(true);
-    try {
-      await uploadFile("/api/admin/settings/logo", file, setProgress);
-      await client.invalidateQueries({ queryKey: ["settings"] });
-    } catch (e) {
-      setUploadError(e);
-    } finally {
-      setUploading(false);
     }
   }
   return (
@@ -99,7 +168,7 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
             <section className="admin-panel editor-panel">
               <h2>Identidade e contato</h2>
               <label>
-                Nome da imobiliária ou proprietário
+                Nome da marca
                 <input {...form.register("name")} />
                 {form.formState.errors.name && (
                   <small className="field-error">
@@ -111,6 +180,8 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
                 WhatsApp
                 <input
                   inputMode="tel"
+                  aria-label="WhatsApp"
+                  aria-describedby="whatsapp-help"
                   placeholder="55 + DDD + número"
                   {...form.register("whatsapp")}
                 />
@@ -119,7 +190,7 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
                     {form.formState.errors.whatsapp.message}
                   </small>
                 )}
-                <small>
+                <small id="whatsapp-help">
                   Somente dígitos, com código do país. Ex.: 5581999999999. Deixe
                   em branco para ocultar o contato.
                 </small>
@@ -171,57 +242,14 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
               <h3>Uma conversa começa com um clique.</h3>
               <p>
                 O WhatsApp configurado será usado em todos os botões de contato,
-                com mensagens personalizadas para cada imóvel.
+                com mensagens personalizadas para cada hospedagem.
               </p>
             </div>
           </aside>
         </div>
       </form>
-      <section className="admin-panel editor-panel logo-panel">
-        <h2>Logotipo</h2>
-        <p className="muted">
-          Use uma imagem JPG ou PNG. Sem logotipo, o site utiliza o símbolo de
-          casa.
-        </p>
-        {settings.logoUrl && (
-          <img
-            className="logo-preview"
-            src={settings.logoUrl}
-            alt="Logotipo atual"
-          />
-        )}
-        <label className="upload-zone">
-          <UploadCloud />
-          <strong>
-            {uploading ? `Enviando… ${progress}%` : "Selecionar logotipo"}
-          </strong>
-          <input
-            type="file"
-            accept="image/jpeg,image/png"
-            disabled={uploading}
-            onChange={(e) => logo(e.target.files?.[0])}
-            aria-label="Selecionar logotipo"
-          />
-        </label>
-        {settings.logoUrl && (
-          <Button
-            type="button"
-            variant="outline"
-            disabled={uploading}
-            onClick={async () => {
-              try {
-                await api("/api/admin/settings/logo", { method: "DELETE" });
-                await client.invalidateQueries({ queryKey: ["settings"] });
-              } catch (e) {
-                setUploadError(e);
-              }
-            }}
-          >
-            Usar símbolo padrão
-          </Button>
-        )}
-        {!!uploadError && <Failure error={uploadError} />}
-      </section>
+      <SiteImageUploader settings={settings} kind="logo" />
+      <SiteImageUploader settings={settings} kind="hero" />
     </>
   );
 }
