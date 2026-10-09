@@ -1,0 +1,5 @@
+# Empacota a compilação feita com npm ci + npm run build no host.
+FROM nginx:1.28-alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --chown=nginx:nginx dist /usr/share/nginx/html
+EXPOSE 80

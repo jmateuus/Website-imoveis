@@ -1,0 +1,2 @@
+ALTER TABLE imovel ADD COLUMN version bigint NOT NULL DEFAULT 0;
+ALTER TABLE midia ADD COLUMN version bigint NOT NULL DEFAULT 0;
