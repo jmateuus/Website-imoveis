@@ -148,7 +148,7 @@ function EditorForm({
             <h1>
               {property
                 ? "Editar imóvel"
-                : "Um novo imóvel, novas possibilidades."}
+                : "Uma nova hospedagem, novas possibilidades."}
             </h1>
             <p>
               Os campos com * são obrigatórios. Os demais aparecem somente
@@ -224,16 +224,16 @@ function EditorForm({
                     ))}
                   </select>
                 </label>
-                {field("rent", "Aluguel mensal (R$) *", "number")}
-                {field("condoFee", "Condomínio mensal (R$)", "number")}
-                {field("propertyTax", "IPTU mensal (R$)", "number")}
+                {field("rent", "Valor de referência (R$) *", "number")}
+                {field("condoFee", "Condomínio (R$)", "number")}
+                {field("propertyTax", "IPTU (R$)", "number")}
               </div>
               <label>
                 Descrição *
                 <textarea
                   rows={7}
                   {...form.register("description")}
-                  placeholder="Conte como é viver neste espaço. Descreva ambientes, iluminação, localização e diferenciais."
+                  placeholder="Descreva os ambientes, comodidades, atrações próximas e diferenciais da hospedagem."
                   aria-invalid={!!error("description")}
                 />
                 {error("description") && (
