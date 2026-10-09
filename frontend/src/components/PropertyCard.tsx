@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import {
   BedDouble,
   Bath,
-  CarFront,
+  Users,
   Expand,
   MapPin,
   ArrowUpRight,
@@ -15,7 +15,7 @@ export function PropertySpecs({ property }: { property: Property }) {
   const specs = [
     { value: property.bedrooms, icon: BedDouble, label: "quartos" },
     { value: property.bathrooms, icon: Bath, label: "banheiros" },
-    { value: property.guests, icon: CarFront, label: "hóspedes" },
+    { value: property.guests, icon: Users, label: "hóspedes" },
     { value: property.area, icon: Expand, label: "m²" },
   ];
   return (
