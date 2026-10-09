@@ -1,0 +1,6 @@
+# Somente para executar a API/Maven no host, fora do Docker.
+# O site completo em Docker acessa postgres:5432 pela rede interna.
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"

@@ -12,7 +12,7 @@ python3 scripts/init-local-env.py
 docker compose up --build -d postgres minio api web
 ```
 
-O frontend usa a porta **8088**, a API **8080**, o PostgreSQL **5432** e o MinIO **9000** (console **9001**). As portas do Compose estão vinculadas ao loopback para desenvolvimento. Acesse o caminho `/admin` no frontend; o e-mail e a senha inicial ficam no `.env` local, com permissão `600`. Esse arquivo é ignorado pelo Git e nunca deve ser publicado. As credenciais são geradas aleatoriamente; não existe senha padrão no código.
+O frontend usa a porta **8088**, a API **8080** e o MinIO **9000** (console **9001**). Essas portas estão vinculadas ao loopback para desenvolvimento. O PostgreSQL usa **5432 somente na rede interna do Docker**; o site completo não reserva essa porta no computador, evitando conflitos com instalações locais do banco e restrições do Windows. Acesse o caminho `/admin` no frontend; o e-mail e a senha inicial ficam no `.env` local, com permissão `600`. Esse arquivo é ignorado pelo Git e nunca deve ser publicado. As credenciais são geradas aleatoriamente; não existe senha padrão no código.
 
 O frontend aguarda a API ficar saudável antes de iniciar. O Nginx consulta o DNS do Docker novamente quando o endereço da API muda, inclusive após recriar o contêiner. Para atualizar uma instalação existente, execute `git pull --ff-only` e `docker compose up --build -d --wait`; isso preserva o `.env` e os volumes. Use `docker compose ps` para conferir a API como `healthy`. Se houver falha, consulte `docker compose logs --tail=80 api web`.
 
@@ -59,6 +59,8 @@ python3 scripts/cloud-dev.py start   # reinício, com dados e volumes preservado
 ```
 
 Em uma máquina com Java 21 e Maven instalados, também é possível executar `mvn spring-boot:run` em `backend/` e `npm run dev` em `frontend/`, com as variáveis abaixo configuradas. PostgreSQL e MinIO devem estar em execução.
+
+Quando a API ou os testes Maven executarem fora do Docker, exponha o banco usando `docker compose -f compose.yaml -f compose.dev.yaml up -d postgres minio`. O helper `cloud-dev.py start` aplica essa configuração automaticamente. A porta do banco no host é `POSTGRES_PORT` do `.env` (padrão `5432`); configure outra porta se houver conflito. Essa opção não é necessária para testar o site completo em Docker.
 
 ## Funcionalidades
 

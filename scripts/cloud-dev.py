@@ -24,7 +24,7 @@ def environment():
             values[key.strip()] = value.strip().strip('"').strip("'")
     env = os.environ.copy()
     env.update(values)
-    env.update(DATABASE_URL=f"jdbc:postgresql://127.0.0.1:5432/{values.get('POSTGRES_DB', 'imoveis')}",
+    env.update(DATABASE_URL=f"jdbc:postgresql://127.0.0.1:{values.get('POSTGRES_PORT', '5432')}/{values.get('POSTGRES_DB', 'imoveis')}",
                DATABASE_USERNAME=values.get('POSTGRES_USER', 'imoveis'), DATABASE_PASSWORD=values['POSTGRES_PASSWORD'],
                S3_ENDPOINT='http://127.0.0.1:9000', S3_BUCKET='imoveis', S3_REGION='us-east-1', S3_CREATE_BUCKET='true',
                JAVA_HOME=str(LOCAL / 'tools/jdk'))
@@ -102,7 +102,7 @@ def main():
         print('Processos iniciados por este script foram encerrados. Volumes e serviços de infraestrutura preservados.')
     elif action == 'start':
         env = environment()
-        subprocess.run(['docker', 'compose', 'up', '-d', 'postgres', 'minio'], cwd=ROOT, check=True)
+        subprocess.run(['docker', 'compose', '-f', 'compose.yaml', '-f', 'compose.dev.yaml', 'up', '-d', 'postgres', 'minio'], cwd=ROOT, check=True)
         start_process('api', [str(LOCAL / 'tools/jdk/bin/java'), '-jar', str(LOCAL / 'api-runtime.jar')], ROOT / 'backend', env, 8080)
         start_process('web', ['npm', 'run', 'dev', '--', '--port', '5173', '--strictPort'], ROOT / 'frontend', env, 5173)
         for attempt in range(45):

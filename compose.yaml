@@ -13,8 +13,6 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
-    ports:
-      - "127.0.0.1:5432:5432"
   minio:
     image: bitnamilegacy/minio@sha256:451fe6858cb770cc9d0e77ba811ce287420f781c7c1b806a386f6896471a349c
     entrypoint: /opt/bitnami/minio/bin/minio
