@@ -32,8 +32,8 @@ export function Brand({ settings }: { settings?: Settings }) {
         </span>
       )}
       <span>
-        {settings?.name ?? "Morada"}
-        <small>bons lugares, novos começos</small>
+        {"Privê Lopes | Hospedagens"}
+        <small>sol, praia e bons momentos</small>
       </span>
     </span>
   );
@@ -86,8 +86,8 @@ export default function PublicLayout() {
             <NavLink to="/" end>
               Início
             </NavLink>
-            <NavLink to="/imoveis">Encontre seu imóvel</NavLink>
-            <Link to="/#como-funciona">Como funciona</Link>
+            <NavLink to="/imoveis">Explorar hospedagens</NavLink>
+            <Link to="/contatos">Contatos</Link>
             {contact && (
               <Button asChild variant="outline">
                 <a href={contact} target="_blank" rel="noopener noreferrer">
@@ -110,12 +110,12 @@ export default function PublicLayout() {
             <p>{settings.data.footer}</p>
           </div>
           <div>
-            <h3>Encontre seu lugar</h3>
-            <Link to="/imoveis">Imóveis para alugar</Link>
+            <h3>Sua próxima temporada</h3>
+            <Link to="/imoveis">Hospedagens disponíveis</Link>
             <Link to="/#como-funciona">Como funciona</Link>
           </div>
           <div>
-            <h3>Fale com a gente</h3>
+            <h3>Planeje sua viagem</h3>
             {contact ? (
               <a href={contact} target="_blank" rel="noopener noreferrer">
                 <MessageCircle size={16} /> Conversar pelo WhatsApp{" "}
@@ -138,7 +138,7 @@ export default function PublicLayout() {
             reservados.
           </span>
           <Link to="/admin">
-            <ShieldCheck size={13} /> Área do proprietário
+            <ShieldCheck size={13} /> Área administrativa
           </Link>
         </div>
       </footer>
