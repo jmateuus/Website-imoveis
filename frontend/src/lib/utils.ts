@@ -25,9 +25,9 @@ export function whatsappUrl(
 ) {
   if (!/^[1-9]\d{9,14}$/.test(number)) return null;
   const text = property
-    ? `Olá! Tenho interesse no imóvel ${property.title}, localizado em ${property.neighborhood}/${property.city}. Gostaria de receber mais informações. Link: ${origin}/imoveis/${property.slug}`
-    : "Olá! Gostaria de saber mais sobre os imóveis disponíveis para aluguel.";
-  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+    ? `Oi, tenho interesse na hospedagem ${property.title} que encontrei no site Privê Lopes | Hospedagens. Gostaria de consultar valores e disponibilidade. Link: ${origin}/imoveis/${property.slug}`
+    : "Oi, tenho interesse na casa";
+  return property ? `https://wa.me/${number}?text=${encodeURIComponent(text)}` : `http://wa.me/${number}?text=Oi%2C+tenho+interesse+na+casa`;
 }
 export function slugify(value: string) {
   return value
