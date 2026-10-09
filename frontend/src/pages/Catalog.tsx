@@ -49,12 +49,12 @@ function Filters({
         <div className="search-input">
           <Search size={19} />
           <input
-            aria-label="Pesquisar imóveis"
+            aria-label="Pesquisar hospedagens"
             placeholder="Cidade, bairro ou nome do imóvel"
             value={draft.search ?? ""}
             onChange={(e) => set("search", e.target.value)}
           />
-          <button type="submit" aria-label="Buscar imóveis">
+          <button type="submit" aria-label="Buscar hospedagens">
             <ArrowRight size={20} />
           </button>
         </div>
@@ -118,7 +118,7 @@ function Filters({
               </select>
             </label>
             <label>
-              Aluguel mínimo (R$)
+              Valor mínimo informado (R$)
               <input
                 type="number"
                 min="0"
@@ -128,7 +128,7 @@ function Filters({
               />
             </label>
             <label>
-              Aluguel máximo (R$)
+              Valor máximo informado (R$)
               <input
                 type="number"
                 min="0"
@@ -219,8 +219,8 @@ export function PropertyListing({ compact = false }: { compact?: boolean }) {
             <span>
               <strong>{query.data.totalElements}</strong>{" "}
               {query.data.totalElements === 1
-                ? "imóvel encontrado"
-                : "imóveis encontrados"}
+                ? "hospedagem encontrada"
+                : "hospedagens encontradas"}
             </span>
             {query.isFetching && <span>Atualizando…</span>}
           </div>
@@ -262,7 +262,7 @@ export function PropertyListing({ compact = false }: { compact?: boolean }) {
         <div className="center-action">
           <Button asChild variant="outline">
             <Link to={`/imoveis?${params}`}>
-              Explorar todos os imóveis
+              Explorar todas as hospedagens
               <ArrowRight />
             </Link>
           </Button>
@@ -277,12 +277,12 @@ export default function Catalog() {
       <div className="breadcrumb">
         <Link to="/">Início</Link>
         <span>/</span>
-        <span>Imóveis para alugar</span>
+        <span>Hospedagens por temporada</span>
       </div>
       <span className="eyebrow">ENCONTRE SEU LUGAR</span>
-      <h1>Seu próximo lar está por aqui.</h1>
+      <h1>Sua próxima temporada começa aqui.</h1>
       <p className="section-description">
-        Explore os imóveis e encontre o espaço que faz sentido para você.
+        Explore hospedagens nas praias do Nordeste e escolha o cenário das suas próximas férias.
       </p>
       <PropertyListing />
     </section>
