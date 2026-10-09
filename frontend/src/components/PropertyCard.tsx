@@ -10,12 +10,12 @@ import {
 } from "lucide-react";
 import type { Property } from "@/lib/types";
 import { propertyTypes } from "@/lib/types";
-import { cover, money } from "@/lib/utils";
+import { cover } from "@/lib/utils";
 export function PropertySpecs({ property }: { property: Property }) {
   const specs = [
     { value: property.bedrooms, icon: BedDouble, label: "quartos" },
     { value: property.bathrooms, icon: Bath, label: "banheiros" },
-    { value: property.parking, icon: CarFront, label: "vagas" },
+    { value: property.guests, icon: CarFront, label: "hóspedes" },
     { value: property.area, icon: Expand, label: "m²" },
   ];
   return (
@@ -77,8 +77,7 @@ export default function PropertyCard({ property }: { property: Property }) {
         <PropertySpecs property={property} />
         <div className="card-bottom">
           <p>
-            <strong>{money(property.rent)}</strong>
-            <span> / mês</span>
+            <strong>Consulte valores</strong>
           </p>
           <Link className="detail-link" to={`/imoveis/${property.slug}`}>
             Ver detalhes <ArrowUpRight size={16} />
