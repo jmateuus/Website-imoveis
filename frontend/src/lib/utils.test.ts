@@ -16,7 +16,7 @@ describe("WhatsApp", () => {
     expect(url.host).toBe("wa.me");
     expect(url.pathname).toBe("/5581999999999");
     expect(url.searchParams.get("text")).toBe(
-      "Olá! Tenho interesse no imóvel Casa & Jardim, localizado em Casa Forte/Recife. Gostaria de receber mais informações. Link: https://morada.example/imoveis/casa-jardim",
+      "Oi, tenho interesse na hospedagem Casa & Jardim que encontrei no site Privê Lopes | Hospedagens. Gostaria de consultar valores e disponibilidade. Link: https://morada.example/imoveis/casa-jardim",
     );
     expect(result).not.toContain("Casa & Jardim");
   });
@@ -36,7 +36,7 @@ describe("WhatsApp", () => {
       whatsappUrl("5581999999999", undefined, "https://morada.example")!,
     );
     expect(url.searchParams.get("text")).toContain(
-      "imóveis disponíveis para aluguel",
+      "Oi, tenho interesse na casa",
     );
   });
 });
