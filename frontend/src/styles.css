@@ -2910,6 +2910,12 @@ progress {
   height: 78px;
   stroke-width: 1.1;
 }
+.about-symbol > img {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  object-position: center;
+}
 .about-symbol > svg:last-child {
   color: #087bb5;
   width: 110px;
