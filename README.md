@@ -160,6 +160,9 @@ Credenciais R2 e validação de uma implantação de produção não estão incl
 
 ## Verificações
 
+Para a regressão isolada de proporções/orientação de imagens e os comandos de
+atualização futura preservando volumes, consulte [Imagens e atualização](docs/imagens-e-atualizacao.md).
+
 Com infraestrutura inicializada e `.env` configurado:
 
 ```bash

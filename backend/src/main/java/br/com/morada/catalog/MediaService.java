@@ -7,6 +7,10 @@ import java.io.*;
 import java.nio.file.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.geom.AffineTransform;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import org.springframework.stereotype.Service;
@@ -66,14 +70,43 @@ class MediaService {
                 reader.setInput(input,true,true);
                 long pixels=(long)reader.getWidth(0)*reader.getHeight(0);
                 if (pixels>40_000_000 || pixels<1) throw CatalogService.bad("Imagem excede 40 megapixels.");
-                BufferedImage original=reader.read(0);
+                BufferedImage original=orient(reader.read(0), orientation(file));
                 return new ImageFiles(resize(original,1920),resize(original,480));
             } finally { reader.dispose(); }
         }
     }
+    private static int orientation(MultipartFile file) throws IOException {
+        try (InputStream in=file.getInputStream()) {
+            var directory=ImageMetadataReader.readMetadata(in).getFirstDirectoryOfType(ExifIFD0Directory.class);
+            Integer value=directory==null?null:directory.getInteger(ExifIFD0Directory.TAG_ORIENTATION);
+            return value==null?1:value;
+        } catch (ImageProcessingException e) {
+            // A decodable image without usable metadata retains its pixel orientation.
+            return 1;
+        }
+    }
+    static BufferedImage orient(BufferedImage image, int orientation) {
+        int w=image.getWidth(), h=image.getHeight();
+        AffineTransform transform=switch (orientation) {
+            case 2 -> new AffineTransform(-1,0,0,1,w,0);
+            case 3 -> new AffineTransform(-1,0,0,-1,w,h);
+            case 4 -> new AffineTransform(1,0,0,-1,0,h);
+            case 5 -> new AffineTransform(0,1,1,0,0,0);
+            case 6 -> new AffineTransform(0,1,-1,0,h,0);
+            case 7 -> new AffineTransform(0,-1,-1,0,h,w);
+            case 8 -> new AffineTransform(0,-1,1,0,0,w);
+            default -> null;
+        };
+        if (transform==null) return image;
+        boolean swap=orientation>=5 && orientation<=8;
+        BufferedImage result=new BufferedImage(swap?h:w,swap?w:h,BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g=result.createGraphics();
+        try { g.drawImage(image,transform,null); } finally { g.dispose(); }
+        return result;
+    }
     private static byte[] resize(BufferedImage image, int max) throws IOException {
         double ratio=Math.min(1,(double)max/Math.max(image.getWidth(),image.getHeight()));
-        BufferedImage result=new BufferedImage(Math.max(1,(int)(image.getWidth()*ratio)),Math.max(1,(int)(image.getHeight()*ratio)),BufferedImage.TYPE_INT_RGB);
+        BufferedImage result=new BufferedImage(Math.max(1,(int)Math.round(image.getWidth()*ratio)),Math.max(1,(int)Math.round(image.getHeight()*ratio)),BufferedImage.TYPE_INT_RGB);
         Graphics2D g=result.createGraphics(); g.setColor(Color.WHITE);g.fillRect(0,0,result.getWidth(),result.getHeight());
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         g.drawImage(image,0,0,result.getWidth(),result.getHeight(),null);g.dispose();
