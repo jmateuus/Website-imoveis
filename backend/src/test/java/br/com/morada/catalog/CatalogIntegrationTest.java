@@ -38,6 +38,20 @@ class CatalogIntegrationTest {
     @Value("${app.admin-email}") String adminEmail;
     @Value("${app.admin-password}") String adminPassword;
     List<String> uploaded=new ArrayList<>();
+    @Test void experienceVideoCanBeCoverAndSurvivesPhotoUploads() throws Exception {
+        var e=experience(true,null);
+        var video=media.uploadExperience(e.id(),new MockMultipartFile("file","tour.mp4","video/mp4",java.nio.file.Files.readAllBytes(java.nio.file.Path.of("../frontend/e2e/fixtures/tour.mp4"))));track(video.id());
+        assertThat(video.primaryImage()).isTrue();
+        var photo=media.uploadExperience(e.id(),image("praia.png"));track(photo.id());
+        assertThat(photo.primaryImage()).isFalse();
+        media.primaryExperience(e.id(),photo.id());
+        mvc.perform(put("/api/admin/experiences/"+e.id()+"/media/"+video.id()+"/primary").with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isNoContent());
+        entityManager.flush();entityManager.clear();
+        var view=experienceService.detail(e.id(),false);
+        assertThat(view.media().stream().filter(MediaView::primaryImage).map(MediaView::id).toList()).containsExactly(video.id());
+        media.deleteExperience(e.id(),video.id());
+        assertThat(mediaRepository.findById(photo.id()).orElseThrow().primaryImage).isTrue();
+    }
     @Test void publishedExperienceMediaWorksFromFreshPersistenceContext() throws Exception {
         var e=experience(true,null);
         var photo=media.uploadExperience(e.id(),image("praia.png"));track(photo.id());

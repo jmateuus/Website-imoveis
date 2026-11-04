@@ -5,6 +5,7 @@ import { Images } from "lucide-react";
 import { api } from "@/lib/api";
 import type { Experience, PageResult } from "@/lib/types";
 import { Stars } from "@/components/Reviews";
+import VideoPreview from "@/components/VideoPreview";
 import { Button } from "@/components/ui/button";
 import { Empty, Loading, Failure } from "@/components/Feedback";
 import Seo from "@/components/Seo";
@@ -47,9 +48,10 @@ export default function Experiences() {
           <div className="experience-grid">
             {query.data.content.map((experience) => {
               const cover =
-                experience.media.find(
-                  (m) => m.primaryImage && m.type === "IMAGEM",
-                ) ?? experience.media.find((m) => m.type === "IMAGEM");
+                experience.media.find((m) => m.primaryImage) ??
+                [...experience.media].sort(
+                  (a, b) => a.position - b.position,
+                )[0];
               return (
                 <article className="experience-card" key={experience.id}>
                   <Link
@@ -57,7 +59,9 @@ export default function Experiences() {
                     className="experience-cover"
                     aria-label={`Ler ${experience.title}`}
                   >
-                    {cover ? (
+                    {cover?.type === "VIDEO" ? (
+                      <VideoPreview key={cover.url} media={cover} />
+                    ) : cover ? (
                       <img
                         src={cover.thumbnailUrl ?? cover.url}
                         alt={experience.title}

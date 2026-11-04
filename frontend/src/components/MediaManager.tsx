@@ -194,7 +194,7 @@ export default function MediaManager({
       {media.length > 0 && (
         <>
           <p className="media-help">
-            Arraste para reordenar ou use as setas. A estrela define a foto
+            Arraste para reordenar ou use as setas. A estrela define a mídia
             principal.
           </p>
           <div className="media-grid">
@@ -247,7 +247,7 @@ export default function MediaManager({
                   >
                     <ChevronRight />
                   </Button>
-                  {m.type === "IMAGEM" ? (
+                  {m.type === "IMAGEM" || ownerType === "experiences" ? (
                     <Button
                       type="button"
                       variant="ghost"

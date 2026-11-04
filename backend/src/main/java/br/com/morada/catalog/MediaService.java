@@ -60,6 +60,7 @@ class MediaService {
             boolean valid=type.equals("video/mp4")?head.length>=12 && head[4]=='f' && head[5]=='t' && head[6]=='y' && head[7]=='p'
                 :head.length>=4 && head[0]==0x1a && head[1]==0x45 && head[2]==(byte)0xdf && head[3]==(byte)0xa3;
             if (!valid) throw CatalogService.bad("O conteúdo do vídeo não corresponde ao formato informado.");
+            m.primaryImage=m.experience!=null && siblings.stream().noneMatch(i->i.primaryImage);
             m.type=MediaType.VIDEO; m.contentType=type; m.key=root+(type.equals("video/mp4")?".mp4":".webm");m.size=file.getSize();
             Path temp=Files.createTempFile("upload-",".video");
             try { file.transferTo(temp);storage.put(m.key,type,temp); }
@@ -143,15 +144,15 @@ class MediaService {
         Media m=siblings.stream().filter(i->i.id.equals(id)).findFirst().orElseThrow(CatalogService::notFound);
         catalog.queueDelete(m.key);catalog.queueDelete(m.thumbnailKey);siblings.remove(m);
         media.delete(m);media.flush();
-        if (m.primaryImage) siblings.stream().filter(i->i.type==MediaType.IMAGEM).findFirst().ifPresent(i->i.primaryImage=true);
+        if (m.primaryImage) siblings.stream().filter(i->m.experience!=null || i.type==MediaType.IMAGEM).findFirst().ifPresent(i->i.primaryImage=true);
     }
     void primary(UUID propertyId, UUID id) {
         Property p=catalog.locked(propertyId);
-        primaryIn(p.media,id);
+        primaryIn(p.media,id,false);
     }
-    void primaryExperience(UUID owner,UUID id) { primaryIn(experiences.findLockedById(owner).orElseThrow(CatalogService::notFound).media,id); }
-    private void primaryIn(List<Media> siblings,UUID id) {
-        Media selected=siblings.stream().filter(i->i.id.equals(id) && i.type==MediaType.IMAGEM).findFirst().orElseThrow(CatalogService::notFound);
+    void primaryExperience(UUID owner,UUID id) { primaryIn(experiences.findLockedById(owner).orElseThrow(CatalogService::notFound).media,id,true); }
+    private void primaryIn(List<Media> siblings,UUID id,boolean allowVideo) {
+        Media selected=siblings.stream().filter(i->i.id.equals(id) && (allowVideo || i.type==MediaType.IMAGEM)).findFirst().orElseThrow(CatalogService::notFound);
         siblings.forEach(i->i.primaryImage=false);media.flush();selected.primaryImage=true;
     }
     void reorder(UUID propertyId, List<UUID> ids) {

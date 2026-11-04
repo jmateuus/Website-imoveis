@@ -26,6 +26,9 @@
 4. Salve como rascunho, envie as fotos/vídeos e selecione a capa. É possível
    reordenar e excluir as mídias. O limite é de 30 mídias por vivência: JPG/PNG
    até 15 MB e MP4/WebM até 100 MB.
+   A estrela permite selecionar imagem ou vídeo como capa de uma vivência.
+   O primeiro vídeo também se torna capa se ainda não houver uma mídia principal;
+   adicionar fotos depois não substitui uma capa já escolhida.
 5. Marque **Publicar vivência no site** e salve. Desmarque para retirar do feed.
 
 Rascunhos, seus retratos e suas mídias só podem ser consultados por administradores.
@@ -67,7 +70,7 @@ multipart com parte JSON `experience` e foto do cliente em `file`.
 
 Validação executada em infraestrutura local isolada:
 
-- 47 testes Java, incluindo integração com PostgreSQL/MinIO e migrações Flyway.
+- 48 testes Java, incluindo integração com PostgreSQL/MinIO e migrações Flyway.
 - 8 testes unitários do frontend e build TypeScript/Vite.
 - 12 cenários Playwright em desktop, celular vertical e horizontal, cobrindo
   cadastro/publicação/exclusão de vivências, imagem/vídeo, galeria e avaliações.
@@ -81,6 +84,18 @@ Os testes limpam o contexto de persistência antes das leituras para simular nov
 requisições, cobrindo foto, miniatura, vídeo com Range e privacidade de rascunhos.
 A correção não muda chaves S3 nem exige reenviar as mídias existentes; basta
 recompilar e atualizar o serviço `api` com os mesmos volumes e configuração.
+
+Prévia de vídeos: a galeria e a capa do feed exibem um quadro do próprio vídeo,
+com indicador de reprodução. Não há autoplay no feed. A prévia usa a decodificação
+do navegador, sem reprocessar os vídeos ou criar novos objetos no armazenamento;
+funciona também para vídeos já cadastrados. Arquivos não decodificáveis pelo
+navegador exibem uma alternativa para abrir o vídeo. A reprodução com controles
+fica no modal. As capas de vídeo são permitidas em Vivências; o catálogo de
+hospedagens mantém a seleção de imagens como capa.
+
+Para aplicar essa correção de prévia/capa, atualize **api e web**, pois ela inclui
+mudanças no frontend e na seleção da mídia principal na API. Não há nova migração
+nem necessidade de reenviar os arquivos.
 
 `npm run test:images` inclui as suítes isoladas de imagens, avaliações e vivências.
 `mvn test` exige serviços e credenciais dedicados a testes, nunca produção.

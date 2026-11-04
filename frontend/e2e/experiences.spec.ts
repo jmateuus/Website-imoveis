@@ -43,6 +43,14 @@ test("admin creates publishes and deletes a story with media; visitors read the 
       await route.fulfill({ status: 201, json: m });
       return;
     }
+    if (p.endsWith("/primary") && method === "PUT") {
+      const id = p.split("/").at(-2);
+      story!.media.forEach((m) => {
+        m.primaryImage = m.id === id;
+      });
+      await route.fulfill({ status: 204 });
+      return;
+    }
     if (p.includes("/experiences") && ["POST", "PUT"].includes(method)) {
       const raw = req.postDataBuffer()!.toString("utf8");
       const input = JSON.parse(
@@ -139,12 +147,26 @@ test("admin creates publishes and deletes a story with media; visitors read the 
   await expect(
     page.getByRole("button", { name: "Uploads concluídos" }),
   ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Definir tour.mp4 como principal" })
+    .click();
   await page.getByLabel("Publicar vivência no site", { exact: true }).check();
   await page
     .getByRole("button", { name: "Salvar vivência", exact: true })
     .click();
   await expect(page.getByText("Vivência salva com sucesso.")).toBeVisible();
   await page.goto("/vivencias");
+  const preview = page.locator(".experience-cover video");
+  await expect(preview).toBeVisible();
+  await expect
+    .poll(() =>
+      preview.evaluate(
+        (v: HTMLVideoElement) =>
+          v.readyState >= 2 && v.videoWidth > 0 && v.paused,
+      ),
+    )
+    .toBe(true);
+  await expect(preview).toHaveCSS("object-fit", "cover");
   await page.getByRole("link", { name: "Ler Dias de sol em família" }).click();
   await expect(
     page.getByRole("heading", { name: "Dias de sol em família", exact: true }),
@@ -155,9 +177,9 @@ test("admin creates publishes and deletes a story with media; visitors read the 
   await expect(page.getByRole("link", { name: "@ana.souza" })).toBeVisible();
   await page.getByRole("button", { name: /Ver todas as mídias/ }).click();
   const dialog = page.getByRole("dialog");
-  await expect(dialog.locator("img")).toHaveCSS("object-fit", "contain");
+  await expect(dialog.locator("video")).toHaveCSS("object-fit", "contain");
   await page.keyboard.press("ArrowRight");
-  await expect(dialog.locator("video")).toBeVisible();
+  await expect(dialog.locator("img")).toBeVisible();
   await page.keyboard.press("Escape");
   expect(
     await page.evaluate(

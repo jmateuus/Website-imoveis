@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Images, ChevronLeft, ChevronRight, House } from "lucide-react";
 import type { Media } from "@/lib/types";
 import { Button } from "./ui/button";
+import VideoPreview from "./VideoPreview";
 import {
   Dialog,
   DialogContent,
@@ -64,10 +65,7 @@ export default function Gallery({
             {m.type === "IMAGEM" ? (
               <img src={m.url} alt={`${title} — foto ${i + 1}`} />
             ) : (
-              <span className="video-tile">
-                <Images />
-                Assistir vídeo
-              </span>
+              <VideoPreview key={m.url} media={m} />
             )}
           </button>
         ))}
