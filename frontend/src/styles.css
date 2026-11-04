@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+.public-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+.public-shell > main {
+  flex: 1;
+}
+.public-shell > header,
+.public-shell > footer {
+  flex-shrink: 0;
+}
+
 .video-preview {
   display: block;
   position: relative;

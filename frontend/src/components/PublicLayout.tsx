@@ -70,99 +70,101 @@ export default function PublicLayout() {
   const contact = whatsappUrl(settings.data.whatsapp);
   return (
     <SettingsContext.Provider value={settings.data}>
-      <a className="skip-link" href="#main">
-        Pular para o conteúdo
-      </a>
-      <header className="site-header">
-        <div className="container header-inner">
-          <Link to="/" aria-label={`${settings.data.name} — página inicial`}>
-            <Brand settings={settings.data} />
-          </Link>
-          <button
-            className="mobile-menu"
-            onClick={() => setMenu(!menu)}
-            aria-label={menu ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={menu}
-          >
-            {menu ? <X /> : <Menu />}
-          </button>
-          <nav
-            className={menu ? "nav open" : "nav"}
-            aria-label="Navegação principal"
-          >
-            <NavLink to="/" end>
-              Início
-            </NavLink>
-            <NavLink to="/imoveis">Explorar hospedagens</NavLink>
-            <NavLink to="/vivencias">Vivências</NavLink>
-            <NavLink to="/contatos">Contatos</NavLink>
-            {contact && (
-              <Button asChild variant="outline">
-                <a href={contact} target="_blank" rel="noopener noreferrer">
-                  Consulte disponibilidade <ArrowUpRight />
-                </a>
-              </Button>
-            )}
-          </nav>
-        </div>
-      </header>
-      <main id="main">
-        <Outlet />
-      </main>
-      <footer className="site-footer">
-        <div className="container footer-grid">
-          <div>
-            <Link to="/">
+      <div className="public-shell">
+        <a className="skip-link" href="#main">
+          Pular para o conteúdo
+        </a>
+        <header className="site-header">
+          <div className="container header-inner">
+            <Link to="/" aria-label={`${settings.data.name} — página inicial`}>
               <Brand settings={settings.data} />
             </Link>
-            <p>{settings.data.footer}</p>
+            <button
+              className="mobile-menu"
+              onClick={() => setMenu(!menu)}
+              aria-label={menu ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={menu}
+            >
+              {menu ? <X /> : <Menu />}
+            </button>
+            <nav
+              className={menu ? "nav open" : "nav"}
+              aria-label="Navegação principal"
+            >
+              <NavLink to="/" end>
+                Início
+              </NavLink>
+              <NavLink to="/imoveis">Explorar hospedagens</NavLink>
+              <NavLink to="/vivencias">Vivências</NavLink>
+              <NavLink to="/contatos">Contatos</NavLink>
+              {contact && (
+                <Button asChild variant="outline">
+                  <a href={contact} target="_blank" rel="noopener noreferrer">
+                    Consulte disponibilidade <ArrowUpRight />
+                  </a>
+                </Button>
+              )}
+            </nav>
           </div>
-          <div>
-            <h3>Sua próxima temporada</h3>
-            <Link to="/imoveis">Hospedagens disponíveis</Link>
-            <Link to="/#como-funciona">Como funciona</Link>
-            <Link to="/contatos">Fale com a gente</Link>
+        </header>
+        <main id="main">
+          <Outlet />
+        </main>
+        <footer className="site-footer">
+          <div className="container footer-grid">
+            <div>
+              <Link to="/">
+                <Brand settings={settings.data} />
+              </Link>
+              <p>{settings.data.footer}</p>
+            </div>
+            <div>
+              <h3>Sua próxima temporada</h3>
+              <Link to="/imoveis">Hospedagens disponíveis</Link>
+              <Link to="/#como-funciona">Como funciona</Link>
+              <Link to="/contatos">Fale com a gente</Link>
+            </div>
+            <div>
+              <h3>Planeje sua viagem</h3>
+              {contact ? (
+                <a href={contact} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle size={16} /> Conversar pelo WhatsApp{" "}
+                  <ArrowUpRight size={14} />
+                </a>
+              ) : (
+                <span>Contato em atualização</span>
+              )}
+              {settings.data.email && (
+                <a href={`mailto:${settings.data.email}`}>
+                  <Mail size={16} />
+                  {settings.data.email}
+                </a>
+              )}
+            </div>
           </div>
-          <div>
-            <h3>Planeje sua viagem</h3>
-            {contact ? (
-              <a href={contact} target="_blank" rel="noopener noreferrer">
-                <MessageCircle size={16} /> Conversar pelo WhatsApp{" "}
-                <ArrowUpRight size={14} />
-              </a>
-            ) : (
-              <span>Contato em atualização</span>
-            )}
-            {settings.data.email && (
-              <a href={`mailto:${settings.data.email}`}>
-                <Mail size={16} />
-                {settings.data.email}
-              </a>
-            )}
+          <div className="container footer-bottom">
+            <span>
+              © {new Date().getFullYear()} {settings.data.name}. Todos os
+              direitos reservados.
+            </span>
+            <Link to="/admin">
+              <ShieldCheck size={13} /> Área administrativa
+            </Link>
           </div>
-        </div>
-        <div className="container footer-bottom">
-          <span>
-            © {new Date().getFullYear()} {settings.data.name}. Todos os direitos
-            reservados.
-          </span>
-          <Link to="/admin">
-            <ShieldCheck size={13} /> Área administrativa
-          </Link>
-        </div>
-      </footer>
-      {contact && (
-        <a
-          className="whatsapp-float"
-          href={contact}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Conversar pelo WhatsApp"
-        >
-          <MessageCircle size={24} />
-          <span>Podemos ajudar?</span>
-        </a>
-      )}
+        </footer>
+        {contact && (
+          <a
+            className="whatsapp-float"
+            href={contact}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Conversar pelo WhatsApp"
+          >
+            <MessageCircle size={24} />
+            <span>Podemos ajudar?</span>
+          </a>
+        )}
+      </div>
     </SettingsContext.Provider>
   );
 }
