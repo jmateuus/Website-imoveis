@@ -13,7 +13,10 @@ interface PropertyRepository extends JpaRepository<Property, UUID>, JpaSpecifica
     Optional<Property> findLockedById(UUID id);
 }
 interface AmenityRepository extends JpaRepository<Amenity, UUID> {}
-interface MediaRepository extends JpaRepository<Media, UUID> {}
+interface MediaRepository extends JpaRepository<Media, UUID> {
+    @Query("select m from Media m left join fetch m.property left join fetch m.experience where m.id = :id")
+    Optional<Media> findWithOwnerById(UUID id);
+}
 interface AdministratorRepository extends JpaRepository<Administrator, UUID> {
     Optional<Administrator> findByEmail(String email);
 }

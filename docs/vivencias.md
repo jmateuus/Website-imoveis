@@ -67,12 +67,20 @@ multipart com parte JSON `experience` e foto do cliente em `file`.
 
 Validação executada em infraestrutura local isolada:
 
-- 45 testes Java, incluindo integração com PostgreSQL/MinIO e migrações Flyway.
+- 47 testes Java, incluindo integração com PostgreSQL/MinIO e migrações Flyway.
 - 8 testes unitários do frontend e build TypeScript/Vite.
 - 12 cenários Playwright em desktop, celular vertical e horizontal, cobrindo
   cadastro/publicação/exclusão de vivências, imagem/vídeo, galeria e avaliações.
 - O cenário do modal verifica 62 comentários, acessíveis em lotes, com somente
   seis cards na home e restauração de foco ao fechar.
+
+Regressão de mídias: a consulta que serve arquivos carrega explicitamente o
+proprietário (hospedagem ou vivência) antes de verificar a publicação. Isso evita
+ler valores padrão de proxies Hibernate e devolver 404 para vivências publicadas.
+Os testes limpam o contexto de persistência antes das leituras para simular novas
+requisições, cobrindo foto, miniatura, vídeo com Range e privacidade de rascunhos.
+A correção não muda chaves S3 nem exige reenviar as mídias existentes; basta
+recompilar e atualizar o serviço `api` com os mesmos volumes e configuração.
 
 `npm run test:images` inclui as suítes isoladas de imagens, avaliações e vivências.
 `mvn test` exige serviços e credenciais dedicados a testes, nunca produção.

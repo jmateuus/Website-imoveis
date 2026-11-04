@@ -33,10 +33,33 @@ class CatalogIntegrationTest {
     @Autowired ReviewRepository reviews;
     @Autowired ExperienceRepository experiences;
     @Autowired ExperienceService experienceService;
+    @Autowired jakarta.persistence.EntityManager entityManager;
     @Autowired ObjectMapper mapper;
     @Value("${app.admin-email}") String adminEmail;
     @Value("${app.admin-password}") String adminPassword;
     List<String> uploaded=new ArrayList<>();
+    @Test void publishedExperienceMediaWorksFromFreshPersistenceContext() throws Exception {
+        var e=experience(true,null);
+        var photo=media.uploadExperience(e.id(),image("praia.png"));track(photo.id());
+        var video=media.uploadExperience(e.id(),new MockMultipartFile("file","tour.mp4","video/mp4",java.nio.file.Files.readAllBytes(java.nio.file.Path.of("../frontend/e2e/fixtures/tour.mp4"))));track(video.id());
+        entityManager.flush();entityManager.clear();
+        String url=photo.url().replace("/admin/","/public/");
+        mvc.perform(get(url)).andExpect(status().isOk()).andExpect(content().contentType("image/jpeg"));
+        entityManager.clear();
+        mvc.perform(get(url).param("thumbnail","true")).andExpect(status().isOk()).andExpect(content().contentType("image/jpeg"));
+        entityManager.clear();
+        mvc.perform(get(video.url().replace("/admin/","/public/")).header("Range","bytes=0-15")).andExpect(status().isPartialContent()).andExpect(content().contentType("video/mp4"));
+    }
+    @Test void draftMediaRemainsPrivateFromFreshPersistenceContext() throws Exception {
+        var e=experience(false,null);var photo=media.uploadExperience(e.id(),image("privada.png"));track(photo.id());
+        var p=create(PropertyStatus.RASCUNHO);var propertyPhoto=media.upload(p.id(),image("rascunho.png"));track(propertyPhoto.id());
+        entityManager.flush();entityManager.clear();
+        mvc.perform(get(photo.url().replace("/admin/","/public/"))).andExpect(status().isNotFound());
+        entityManager.clear();
+        mvc.perform(get(propertyPhoto.url().replace("/admin/","/public/"))).andExpect(status().isNotFound());
+        entityManager.clear();
+        mvc.perform(get(photo.url()).with(user("admin").roles("ADMIN"))).andExpect(status().isOk());
+    }
     ExperienceView experience(boolean published,UUID propertyId) throws Exception {
         var input=new ExperienceInput("Dias de sol","Um relato completo da viagem.","4 noites",published,propertyId,new ReviewInput("Ana",0,"Casa confortável","Casa de praia","@ana"));
         var part=new MockMultipartFile("experience","","application/json",mapper.writeValueAsBytes(input));

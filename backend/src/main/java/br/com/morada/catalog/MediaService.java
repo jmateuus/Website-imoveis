@@ -129,7 +129,8 @@ class MediaService {
     }
     @Transactional(readOnly=true)
     ResponseEntity<InputStreamResource> read(UUID id, boolean admin, boolean thumbnail, String range) {
-        Media m=media.findById(id).orElseThrow(CatalogService::notFound);
+        // Publication checks need initialized owner fields, not lazy proxy defaults.
+        Media m=media.findWithOwnerById(id).orElseThrow(CatalogService::notFound);
         if (!admin && ((m.property!=null && m.property.status==PropertyStatus.RASCUNHO) || (m.experience!=null && !m.experience.published))) throw CatalogService.notFound();
         return storage.read(thumbnail && m.thumbnailKey!=null?m.thumbnailKey:m.key,range,admin);
     }
