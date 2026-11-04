@@ -182,8 +182,14 @@ export default function Home() {
       </section>
       <section className="container section about-stays" id="sobre">
         <div className="about-symbol" aria-hidden="true">
-          <Sun />
-          <Waves />
+          {settings.logoUrl ? (
+            <img src={settings.logoUrl} alt="" />
+          ) : (
+            <>
+              <Sun />
+              <Waves />
+            </>
+          )}
         </div>
         <div>
           <span className="eyebrow">PRIVÊ LOPES | HOSPEDAGENS</span>

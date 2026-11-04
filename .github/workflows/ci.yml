@@ -15,6 +15,11 @@ jobs:
         run: bash scripts/cloud-setup.sh
       - name: Iniciar serviços
         run: python3 scripts/cloud-dev.py start
+      - name: Validar proporções de imagens sem backend
+        working-directory: frontend
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+        run: npm run test:images
       - name: Compilar e testar API e frontend
         run: python3 scripts/cloud-dev.py test
       - name: Validar desktop e celular
