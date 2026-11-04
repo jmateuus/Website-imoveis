@@ -1,5 +1,9 @@
 # Imagens e atualização futura
 
+Este guia registra a correção originalmente publicada na feature. A versão com
+avaliações já integra essas mudanças na `main`; para atualizar essa versão,
+consulte [Avaliações de hóspedes](avaliacoes.md#implantação-futura).
+
 ## Correção
 
 Cards e collage usam `cover`, com recorte central e sem deformação. O modal usa

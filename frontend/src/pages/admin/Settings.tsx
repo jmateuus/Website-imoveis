@@ -7,6 +7,7 @@ import { Save, UploadCloud, MessageCircle } from "lucide-react";
 import { api, uploadFile } from "@/lib/api";
 import type { Settings as SiteSettings } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import ReviewManager from "@/components/ReviewManager";
 import { Loading, Failure } from "@/components/Feedback";
 const schema = z.object({
   name: z.string().trim().min(1, "Informe o nome.").max(120),
@@ -250,6 +251,7 @@ function SettingsForm({ settings }: { settings: SiteSettings }) {
       </form>
       <SiteImageUploader settings={settings} kind="logo" />
       <SiteImageUploader settings={settings} kind="hero" />
+      <ReviewManager />
     </>
   );
 }

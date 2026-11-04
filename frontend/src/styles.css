@@ -1,5 +1,137 @@
 @import "tailwindcss";
 
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.reviews-summary {
+  margin-bottom: 28px;
+  color: #5d7485;
+}
+.reviews-summary strong {
+  font-size: 24px;
+  color: #064b73;
+}
+.review-card {
+  border: 1px solid #e4eff3;
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.review-person {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.review-person img,
+.review-admin-row > img,
+.review-current-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.review-person h3 {
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+.review-stars {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #ee8b2d;
+}
+.review-stars > span {
+  margin-left: 8px;
+  font-size: 12px;
+  color: #163b54;
+}
+.review-comment {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.75;
+  font-size: 14px;
+}
+.review-details {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid #e4eff3;
+  color: #5d7485;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.review-details small {
+  display: block;
+  margin-top: 10px;
+  font-size: 11px;
+}
+.review-details a {
+  text-decoration: underline;
+  color: #087bb5;
+}
+.review-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+}
+.review-admin-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid #e4eff3;
+}
+.review-admin-row > div {
+  flex: 1;
+  min-width: 140px;
+  overflow-wrap: anywhere;
+}
+.review-admin-row small {
+  display: block;
+  margin-top: 6px;
+}
+.review-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 18px 0 0;
+  min-width: 0;
+}
+.review-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+.review-form small {
+  font-size: 12px;
+  color: #5d7485;
+}
+.review-form input[type="file"] {
+  max-width: 100%;
+}
+@media (max-width: 900px) {
+  .review-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+  .review-card {
+    padding: 20px;
+  }
+}
+
 @theme {
   --font-sans: "Arial", "Helvetica Neue", sans-serif;
   --color-primary: #087bb5;

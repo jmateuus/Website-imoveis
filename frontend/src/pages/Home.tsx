@@ -18,6 +18,7 @@ import type { PageResult, Property } from "@/lib/types";
 import { useSettings } from "@/components/PublicLayout";
 import PropertyCard from "@/components/PropertyCard";
 import Seo from "@/components/Seo";
+import Reviews from "@/components/Reviews";
 import { Button } from "@/components/ui/button";
 import { Empty, Failure, Loading } from "@/components/Feedback";
 import { PropertyListing } from "./Catalog";
@@ -180,30 +181,7 @@ export default function Home() {
           <PropertyListing compact />
         </div>
       </section>
-      <section className="container section about-stays" id="sobre">
-        <div className="about-symbol" aria-hidden="true">
-          {settings.logoUrl ? (
-            <img src={settings.logoUrl} alt="" />
-          ) : (
-            <>
-              <Sun />
-              <Waves />
-            </>
-          )}
-        </div>
-        <div>
-          <span className="eyebrow">PRIVÊ LOPES | HOSPEDAGENS</span>
-          <h2>Mais tempo para viver bons momentos.</h2>
-          <p>
-            Uma pausa na rotina, uma viagem em família ou alguns dias com os
-            amigos. A Privê Lopes reúne hospedagens por temporada para você
-            conhecer com calma e escolher o espaço que combina com a sua viagem.
-          </p>
-          <Link className="text-link" to="/contatos">
-            Vamos planejar sua estadia? <ArrowUpRight size={17} />
-          </Link>
-        </div>
-      </section>
+      <Reviews />
       <section className="container section how-section" id="como-funciona">
         <div className="how-intro">
           <span className="eyebrow">SUA VIAGEM, SEM COMPLICAÇÃO</span>

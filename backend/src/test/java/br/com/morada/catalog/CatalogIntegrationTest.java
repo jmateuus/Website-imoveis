@@ -30,10 +30,31 @@ class CatalogIntegrationTest {
     @Autowired PropertyRepository properties;
     @Autowired MediaRepository mediaRepository;
     @Autowired SettingsRepository siteSettings;
+    @Autowired ReviewRepository reviews;
     @Autowired ObjectMapper mapper;
     @Value("${app.admin-email}") String adminEmail;
     @Value("${app.admin-password}") String adminPassword;
     List<String> uploaded=new ArrayList<>();
+    @Test void reviewCrudPersistsPhotoContactAndZeroStars() throws Exception {
+        var input=new ReviewInput("Ana",0,"Atendimento atencioso","Casa dos Carneiros","@ana");
+        var json=new org.springframework.mock.web.MockMultipartFile("review","","application/json",mapper.writeValueAsBytes(input));
+        var created=mvc.perform(multipart("/api/admin/reviews").file(json).file(image("cliente.png"))
+            .with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isCreated()).andReturn();
+        var body=mapper.readTree(created.getResponse().getContentAsByteArray());
+        UUID id=UUID.fromString(body.get("id").asText());
+        uploaded.add(reviews.findById(id).orElseThrow().photoKey);
+        org.junit.jupiter.api.Assertions.assertEquals(0,body.get("rating").asInt());
+        org.junit.jupiter.api.Assertions.assertEquals("@ana",body.get("contact").asText());
+        mvc.perform(get(body.get("photoUrl").asText())).andExpect(status().isOk()).andExpect(content().contentType("image/jpeg"));
+        var updated=new ReviewInput("Ana",5,"Adoramos a estadia","Casa dos Carneiros","@ana.nova");
+        var updateJson=new org.springframework.mock.web.MockMultipartFile("review","","application/json",mapper.writeValueAsBytes(updated));
+        mvc.perform(multipart(org.springframework.http.HttpMethod.PUT,"/api/admin/reviews/"+id).file(updateJson)
+            .with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isOk())
+            .andExpect(jsonPath("$.rating").value(5)).andExpect(jsonPath("$.contact").value("@ana.nova"));
+        mvc.perform(get("/api/public/reviews")).andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1)).andExpect(jsonPath("$.average").value(5.0));
+        mvc.perform(delete("/api/admin/reviews/"+id).with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isNoContent());
+        mvc.perform(get("/api/public/reviews/"+id+"/photo")).andExpect(status().isNotFound());
+    }
     @AfterEach void cleanupObjects() { uploaded.forEach(storage::delete); }
     PropertyInput input(String title,PropertyStatus status) {
         return new PropertyInput(title,"teste-"+UUID.randomUUID(),"Descrição de um imóvel de teste.",PropertyType.CASA,

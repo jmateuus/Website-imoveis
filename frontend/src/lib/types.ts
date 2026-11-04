@@ -81,3 +81,20 @@ export const statuses: Record<PropertyStatus, string> = {
   DISPONIVEL: "Disponível",
   INDISPONIVEL: "Indisponível",
 };
+
+export interface Review {
+  id: string;
+  customerName: string;
+  rating: number;
+  comment: string;
+  propertyName: string;
+  contact: string;
+  photoUrl: string;
+}
+export interface ReviewPage {
+  content: Review[];
+  totalElements: number;
+  totalPages: number;
+  page: number;
+  average: number;
+}

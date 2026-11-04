@@ -3,7 +3,7 @@ import { defineConfig } from "@playwright/test";
 // Isolated regression suite: all API/media requests are mocked, no backend needed.
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: "images.spec.ts",
+  testMatch: /(?:images|reviews)\.spec\.ts/,
   reporter: "list",
   use: {
     baseURL: "http://127.0.0.1:5174",
