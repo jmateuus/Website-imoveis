@@ -56,7 +56,8 @@ class Amenity {
 class Media {
     @Id UUID id = UUID.randomUUID();
     @Version Long version;
-    @ManyToOne(fetch=FetchType.LAZY, optional=false) @JoinColumn(name="imovel_id") Property property;
+    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="imovel_id") Property property;
+    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="vivencia_id") Experience experience;
     @Enumerated(EnumType.STRING) @Column(name="tipo") MediaType type;
     @Column(name="chave") String key;
     @Column(name="miniatura") String thumbnailKey;

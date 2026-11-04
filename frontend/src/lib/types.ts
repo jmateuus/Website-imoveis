@@ -98,3 +98,15 @@ export interface ReviewPage {
   page: number;
   average: number;
 }
+
+export interface Experience {
+  id: string;
+  title: string;
+  description: string;
+  stayDuration: string;
+  published: boolean;
+  propertyId?: string | null;
+  propertySlug?: string | null;
+  review: Review;
+  media: Media[];
+}

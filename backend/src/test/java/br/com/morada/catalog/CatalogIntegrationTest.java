@@ -31,10 +31,45 @@ class CatalogIntegrationTest {
     @Autowired MediaRepository mediaRepository;
     @Autowired SettingsRepository siteSettings;
     @Autowired ReviewRepository reviews;
+    @Autowired ExperienceRepository experiences;
+    @Autowired ExperienceService experienceService;
     @Autowired ObjectMapper mapper;
     @Value("${app.admin-email}") String adminEmail;
     @Value("${app.admin-password}") String adminPassword;
     List<String> uploaded=new ArrayList<>();
+    ExperienceView experience(boolean published,UUID propertyId) throws Exception {
+        var input=new ExperienceInput("Dias de sol","Um relato completo da viagem.","4 noites",published,propertyId,new ReviewInput("Ana",0,"Casa confortável","Casa de praia","@ana"));
+        var part=new MockMultipartFile("experience","","application/json",mapper.writeValueAsBytes(input));
+        var response=mvc.perform(multipart("/api/admin/experiences").file(part).file(image("avatar.png")).with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isCreated()).andReturn();
+        UUID id=UUID.fromString(mapper.readTree(response.getResponse().getContentAsByteArray()).get("id").asText());
+        uploaded.add(experiences.findById(id).orElseThrow().photoKey);
+        return experienceService.detail(id,true);
+    }
+    @Test void experienceDraftPublicationMediaAndDeletion() throws Exception {
+        var property=create(PropertyStatus.DISPONIVEL);var e=experience(false,property.id());
+        mvc.perform(get("/api/public/experiences/"+e.id())).andExpect(status().isNotFound());
+        mvc.perform(get(e.review().photoUrl().replace("/admin/","/public/"))).andExpect(status().isNotFound());
+        mvc.perform(get("/api/public/experiences")).andExpect(jsonPath("$.totalElements").value(0));
+        var first=media.uploadExperience(e.id(),image("praia.png"));track(first.id());
+        var second=media.uploadExperience(e.id(),image("piscina.png"));track(second.id());
+        mvc.perform(get(first.url().replace("/admin/","/public/"))).andExpect(status().isNotFound());
+        media.primaryExperience(e.id(),second.id());media.reorderExperience(e.id(),List.of(second.id(),first.id()));
+        var update=new ExperienceInput("Dias em família","Relato atualizado","5 noites",true,property.id(),new ReviewInput("Ana",5,"Maravilhoso","Casa de praia","@ana.nova"));
+        var json=new MockMultipartFile("experience","","application/json",mapper.writeValueAsBytes(update));
+        mvc.perform(multipart(org.springframework.http.HttpMethod.PUT,"/api/admin/experiences/"+e.id()).file(json).with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isOk());
+        mvc.perform(get("/api/public/experiences/"+e.id())).andExpect(status().isOk()).andExpect(jsonPath("$.review.rating").value(5)).andExpect(jsonPath("$.stayDuration").value("5 noites")).andExpect(jsonPath("$.propertySlug").value(property.slug()));
+        mvc.perform(get(first.url().replace("/admin/","/public/"))).andExpect(status().isOk());
+        media.deleteExperience(e.id(),second.id());assertThat(mediaRepository.findById(first.id()).orElseThrow().primaryImage).isTrue();
+        mvc.perform(delete("/api/admin/experiences/"+e.id()).with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isNoContent());
+        mvc.perform(get(first.url().replace("/admin/","/public/"))).andExpect(status().isNotFound());
+        assertThat(properties.existsById(property.id())).isTrue();assertThat(reviews.count()).isZero();
+    }
+    @Test void experienceMediaCannotBeChangedThroughAnotherOwner() throws Exception {
+        var a=experience(true,null);var b=experience(false,null);var m=media.uploadExperience(a.id(),image("praia.png"));track(m.id());
+        mvc.perform(delete("/api/admin/experiences/"+b.id()+"/media/"+m.id()).with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isNotFound());
+        assertThat(mediaRepository.existsById(m.id())).isTrue();
+        mvc.perform(put("/api/admin/experiences/"+a.id()+"/media/order").contentType("application/json").content("[]").with(user("admin").roles("ADMIN")).with(csrf())).andExpect(status().isBadRequest());
+    }
     @Test void reviewCrudPersistsPhotoContactAndZeroStars() throws Exception {
         var input=new ReviewInput("Ana",0,"Atendimento atencioso","Casa dos Carneiros","@ana");
         var json=new org.springframework.mock.web.MockMultipartFile("review","","application/json",mapper.writeValueAsBytes(input));

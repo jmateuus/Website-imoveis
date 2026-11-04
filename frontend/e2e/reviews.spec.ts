@@ -1,6 +1,75 @@
 import { test, expect } from "@playwright/test";
 import type { Review } from "../src/lib/types";
 
+test("home shows six reviews and modal can reach every comment", async ({
+  page,
+}) => {
+  const reviews = Array.from({ length: 62 }, (_, i) => ({
+    id: String(i),
+    customerName: `Hóspede ${i}`,
+    rating: i % 6,
+    comment:
+      `Comentário completo ${i}. ` + "Uma estadia para lembrar. ".repeat(15),
+    propertyName: "Casa de praia",
+    contact: "@cliente",
+    photoUrl: "/avatar.svg",
+  }));
+  await page.route("**/avatar.svg", (route) =>
+    route.fulfill({
+      contentType: "image/svg+xml",
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><rect width="50" height="50" fill="orange"/></svg>',
+    }),
+  );
+  await page.route("**/api/**", async (route) => {
+    const url = new URL(route.request().url());
+    const size = Number(url.searchParams.get("size") ?? 6),
+      p = Number(url.searchParams.get("page") ?? 0);
+    await route.fulfill({
+      json: url.pathname.endsWith("reviews")
+        ? {
+            content: reviews.slice(p * size, (p + 1) * size),
+            totalElements: 62,
+            totalPages: Math.ceil(62 / size),
+            page: p,
+            average: 2.5,
+          }
+        : url.pathname.endsWith("settings")
+          ? {
+              name: "Privê Lopes",
+              whatsapp: "",
+              heroTitle: "Sua viagem",
+              heroText: "Descanso",
+              footer: "Privê Lopes",
+            }
+          : { content: [], totalElements: 0, totalPages: 0, page: 0 },
+    });
+  });
+  await page.goto("/");
+  await expect(page.locator("#avaliacoes .review-card")).toHaveCount(6);
+  const open = page.getByRole("button", {
+    name: "Visualizar todas as avaliações",
+  });
+  await open.click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.locator(".review-card")).toHaveCount(30);
+  await dialog
+    .getByRole("button", { name: "Carregar mais avaliações" })
+    .click();
+  await expect(dialog.locator(".review-card")).toHaveCount(60);
+  await dialog
+    .getByRole("button", { name: "Carregar mais avaliações" })
+    .click();
+  await expect(dialog.locator(".review-card")).toHaveCount(62);
+  await expect(dialog.getByText("Hóspede 61", { exact: true })).toBeVisible();
+  expect(
+    await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth + 1),
+  ).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(open).toBeFocused();
+  await expect(page.locator("#avaliacoes .review-card")).toHaveCount(6);
+});
+
 test("admin manages reviews and public sees contact and zero stars", async ({
   page,
 }) => {

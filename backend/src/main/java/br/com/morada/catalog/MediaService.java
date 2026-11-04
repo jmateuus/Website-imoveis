@@ -24,23 +24,32 @@ class MediaService {
     private final CatalogService catalog;
     private final MediaRepository media;
     private final StorageService storage;
+    private final ExperienceRepository experiences;
     record ImageFiles(byte[] full, byte[] thumbnail) {}
-    MediaService(CatalogService catalog, MediaRepository media, StorageService storage) { this.catalog=catalog;this.media=media;this.storage=storage; }
+    MediaService(CatalogService catalog, MediaRepository media, StorageService storage, ExperienceRepository experiences) { this.catalog=catalog;this.media=media;this.storage=storage;this.experiences=experiences; }
     MediaView upload(UUID propertyId, MultipartFile file) throws IOException {
         Property p=catalog.locked(propertyId);
-        if (p.media.size()>=30) throw CatalogService.bad("Limite de 30 mídias por imóvel.");
-        if (file.isEmpty()) throw CatalogService.bad("Arquivo vazio.");
         Media m=new Media();m.property=p;
+        return uploadFile(m,p.media,"imoveis/"+p.id,file);
+    }
+    MediaView uploadExperience(UUID id,MultipartFile file) throws IOException {
+        var e=experiences.findLockedById(id).orElseThrow(CatalogService::notFound);
+        Media m=new Media();m.experience=e;
+        return uploadFile(m,e.media,"experiences/"+e.id,file);
+    }
+    private MediaView uploadFile(Media m,List<Media> siblings,String folder,MultipartFile file) throws IOException {
+        if (siblings.size()>=30) throw CatalogService.bad("Limite de 30 mídias.");
+        if (file.isEmpty()) throw CatalogService.bad("Arquivo vazio.");
         String name=Optional.ofNullable(file.getOriginalFilename()).orElse("arquivo").replace('\\','/');
         m.originalName=name.substring(name.lastIndexOf('/')+1);
         if (m.originalName.length()>255) m.originalName=m.originalName.substring(m.originalName.length()-255);
-        m.position=p.media.stream().mapToInt(i->i.position).max().orElse(-1)+1;
-        String root="imoveis/"+p.id+"/"+m.id;
+        m.position=siblings.stream().mapToInt(i->i.position).max().orElse(-1)+1;
+        String root=folder+"/"+m.id;
         String type=Optional.ofNullable(file.getContentType()).orElse("");
         if (type.equals("image/jpeg") || type.equals("image/png")) {
             ImageFiles images=optimize(file);
             m.type=MediaType.IMAGEM; m.contentType="image/jpeg";m.key=root+".jpg";m.thumbnailKey=root+"-thumb.jpg";
-            m.size=images.full().length;m.primaryImage=p.media.stream().noneMatch(i->i.primaryImage);
+            m.size=images.full().length;m.primaryImage=siblings.stream().noneMatch(i->i.primaryImage);
             storage.put(m.key,m.contentType,images.full());
             try { storage.put(m.thumbnailKey,m.contentType,images.thumbnail()); }
             catch (RuntimeException e) { storage.delete(m.key);throw e; }
@@ -56,7 +65,13 @@ class MediaService {
             try { file.transferTo(temp);storage.put(m.key,type,temp); }
             finally { Files.deleteIfExists(temp); }
         } else throw CatalogService.bad("Use imagens JPG/PNG (até 15 MB) ou vídeos MP4/WebM (até 100 MB).");
-        try { media.saveAndFlush(m);p.media.add(m); }
+        org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(new org.springframework.transaction.support.TransactionSynchronization() {
+            @Override public void afterCompletion(int status) {
+                if (status!=STATUS_COMMITTED) try { storage.delete(m.key);if(m.thumbnailKey!=null)storage.delete(m.thumbnailKey); }
+                catch (RuntimeException ex) { org.slf4j.LoggerFactory.getLogger(MediaService.class).warn("Falha ao limpar mídia não salva: {}",m.key); }
+            }
+        });
+        try { media.saveAndFlush(m);siblings.add(m); }
         catch (RuntimeException e) { storage.delete(m.key);if(m.thumbnailKey!=null)storage.delete(m.thumbnailKey);throw e; }
         return CatalogService.mediaView(m,true);
     }
@@ -115,26 +130,38 @@ class MediaService {
     @Transactional(readOnly=true)
     ResponseEntity<InputStreamResource> read(UUID id, boolean admin, boolean thumbnail, String range) {
         Media m=media.findById(id).orElseThrow(CatalogService::notFound);
-        if (!admin && m.property.status==PropertyStatus.RASCUNHO) throw CatalogService.notFound();
+        if (!admin && ((m.property!=null && m.property.status==PropertyStatus.RASCUNHO) || (m.experience!=null && !m.experience.published))) throw CatalogService.notFound();
         return storage.read(thumbnail && m.thumbnailKey!=null?m.thumbnailKey:m.key,range,admin);
     }
     void delete(UUID propertyId, UUID id) {
         Property p=catalog.locked(propertyId);
-        Media m=p.media.stream().filter(i->i.id.equals(id)).findFirst().orElseThrow(CatalogService::notFound);
-        catalog.queueDelete(m.key);catalog.queueDelete(m.thumbnailKey);p.media.remove(m);
+        deleteFrom(p.media,id);
+    }
+    void deleteExperience(UUID owner,UUID id) { deleteFrom(experiences.findLockedById(owner).orElseThrow(CatalogService::notFound).media,id); }
+    private void deleteFrom(List<Media> siblings,UUID id) {
+        Media m=siblings.stream().filter(i->i.id.equals(id)).findFirst().orElseThrow(CatalogService::notFound);
+        catalog.queueDelete(m.key);catalog.queueDelete(m.thumbnailKey);siblings.remove(m);
         media.delete(m);media.flush();
-        if (m.primaryImage) p.media.stream().filter(i->i.type==MediaType.IMAGEM).findFirst().ifPresent(i->i.primaryImage=true);
+        if (m.primaryImage) siblings.stream().filter(i->i.type==MediaType.IMAGEM).findFirst().ifPresent(i->i.primaryImage=true);
     }
     void primary(UUID propertyId, UUID id) {
         Property p=catalog.locked(propertyId);
-        Media selected=p.media.stream().filter(i->i.id.equals(id) && i.type==MediaType.IMAGEM).findFirst().orElseThrow(CatalogService::notFound);
-        p.media.forEach(i->i.primaryImage=false);media.flush();selected.primaryImage=true;
+        primaryIn(p.media,id);
+    }
+    void primaryExperience(UUID owner,UUID id) { primaryIn(experiences.findLockedById(owner).orElseThrow(CatalogService::notFound).media,id); }
+    private void primaryIn(List<Media> siblings,UUID id) {
+        Media selected=siblings.stream().filter(i->i.id.equals(id) && i.type==MediaType.IMAGEM).findFirst().orElseThrow(CatalogService::notFound);
+        siblings.forEach(i->i.primaryImage=false);media.flush();selected.primaryImage=true;
     }
     void reorder(UUID propertyId, List<UUID> ids) {
         Property p=catalog.locked(propertyId);
-        if (ids.size()!=p.media.size() || new HashSet<>(ids).size()!=ids.size()
-            || !new HashSet<>(ids).equals(p.media.stream().map(i->i.id).collect(java.util.stream.Collectors.toSet())))
+        reorderIn(p.media,ids);
+    }
+    void reorderExperience(UUID owner,List<UUID> ids) { reorderIn(experiences.findLockedById(owner).orElseThrow(CatalogService::notFound).media,ids); }
+    private void reorderIn(List<Media> siblings,List<UUID> ids) {
+        if (ids.size()!=siblings.size() || new HashSet<>(ids).size()!=ids.size()
+            || !new HashSet<>(ids).equals(siblings.stream().map(i->i.id).collect(java.util.stream.Collectors.toSet())))
             throw CatalogService.bad("Informe todas as mídias, sem repetições.");
-        p.media.forEach(m->m.position=ids.indexOf(m.id));
+        siblings.forEach(m->m.position=ids.indexOf(m.id));
     }
 }

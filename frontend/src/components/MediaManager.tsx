@@ -23,7 +23,9 @@ import {
 export default function MediaManager({
   propertyId,
   media,
+  ownerType = "properties",
 }: {
+  ownerType?: "properties" | "experiences";
   propertyId: string;
   media: Media[];
 }) {
@@ -43,15 +45,20 @@ export default function MediaManager({
     () => () => previews.forEach((url) => URL.revokeObjectURL(url)),
     [previews],
   );
-  const base = `/api/admin/properties/${propertyId}/media`;
+  const base = `/api/admin/${ownerType}/${propertyId}/media`;
   const refresh = () =>
-    client.invalidateQueries({ queryKey: ["admin-property", propertyId] });
+    client.invalidateQueries({
+      queryKey: [
+        ownerType === "experiences" ? "admin-experience" : "admin-property",
+        propertyId,
+      ],
+    });
   function select(selection: FileList | null) {
     if (!selection) return;
     const next = Array.from(selection);
     setError(null);
     if (next.length + media.length > 30) {
-      setError(new Error("Cada hospedagem pode conter até 30 mídias."));
+      setError(new Error("Cada cadastro pode conter até 30 mídias."));
       return;
     }
     const invalid = next.find(
@@ -125,7 +132,7 @@ export default function MediaManager({
       <div className="panel-heading">
         <div>
           <h2>Fotos e vídeos</h2>
-          <p>Uma boa imagem aproxima o futuro morador.</p>
+          <p>Compartilhe os melhores momentos em fotos e vídeos.</p>
         </div>
         <span className="muted">{media.length} / 30 mídias</span>
       </div>

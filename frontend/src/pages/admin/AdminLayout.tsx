@@ -67,6 +67,10 @@ export default function AdminLayout() {
             <House size={19} />
             Minhas hospedagens
           </NavLink>
+          <NavLink to="/admin/vivencias">
+            <House size={19} />
+            Vivências
+          </NavLink>
           <NavLink to="/admin/configuracoes">
             <Settings2 size={19} />
             Configurações

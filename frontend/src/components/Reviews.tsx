@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useRef, useState } from "react";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "./ui/button";
 import { Failure, Loading } from "./Feedback";
 
-import type { ReviewPage } from "@/lib/types";
+import type { Review, ReviewPage } from "@/lib/types";
 export function Stars({ rating }: { rating: number }) {
   return (
     <span
@@ -30,11 +30,58 @@ export function instagramUrl(contact: string) {
   const match = contact.trim().match(/^@([a-zA-Z0-9._]{1,30})$/);
   return match ? `https://www.instagram.com/${match[1]}/` : undefined;
 }
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "./ui/dialog";
+export function ReviewCard({ review }: { review: Review }) {
+  return (
+    <article className="review-card">
+      <div className="review-person">
+        <img src={review.photoUrl} alt="" loading="lazy" />
+        <h3>{review.customerName}</h3>
+      </div>
+      <Stars rating={review.rating} />
+      <p className="review-comment">{review.comment}</p>
+      <div className="review-details">
+        <p>Hospedagem: {review.propertyName}</p>
+        {review.contact && (
+          <small>
+            Contato do hóspede:{" "}
+            {instagramUrl(review.contact) ? (
+              <a
+                href={instagramUrl(review.contact)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {review.contact}
+              </a>
+            ) : (
+              review.contact
+            )}
+          </small>
+        )}
+      </div>
+    </article>
+  );
+}
 export default function Reviews() {
-  const [page, setPage] = useState(0);
+  const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
   const query = useQuery({
-    queryKey: ["reviews", "public", page],
-    queryFn: () => api<ReviewPage>(`/api/public/reviews?page=${page}&size=6`),
+    queryKey: ["reviews", "public", 0],
+    queryFn: () => api<ReviewPage>("/api/public/reviews?page=0&size=6"),
+  });
+  const all = useInfiniteQuery({
+    queryKey: ["reviews", "all"],
+    enabled: open,
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      api<ReviewPage>(`/api/public/reviews?page=${pageParam}&size=30`),
+    getNextPageParam: (last) =>
+      last.page + 1 < last.totalPages ? last.page + 1 : undefined,
   });
   if (query.isPending)
     return (
@@ -74,57 +121,60 @@ export default function Reviews() {
         {query.data.totalElements === 1 ? "avaliação" : "avaliações"}
       </p>
       <div className="review-grid">
-        {query.data.content.map((review) => (
-          <article className="review-card" key={review.id}>
-            <div className="review-person">
-              <img src={review.photoUrl} alt="" loading="lazy" />
-              <h3>{review.customerName}</h3>
-            </div>
-            <Stars rating={review.rating} />
-            <p className="review-comment">{review.comment}</p>
-            <div className="review-details">
-              <p>Hospedagem: {review.propertyName}</p>
-              {review.contact && (
-                <small>
-                  Contato do hóspede:{" "}
-                  {instagramUrl(review.contact) ? (
-                    <a
-                      href={instagramUrl(review.contact)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {review.contact}
-                    </a>
-                  ) : (
-                    review.contact
-                  )}
-                </small>
-              )}
-            </div>
-          </article>
+        {query.data.content.slice(0, 6).map((review) => (
+          <ReviewCard key={review.id} review={review} />
         ))}
       </div>
-      {query.data.totalPages > 1 && (
-        <nav className="review-pagination" aria-label="Páginas de avaliações">
-          <Button
-            variant="outline"
-            disabled={page === 0}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Avaliações anteriores
+      {query.data.totalElements > 6 && (
+        <div className="review-pagination">
+          <Button ref={trigger} variant="outline" onClick={() => setOpen(true)}>
+            Visualizar todas as avaliações
           </Button>
-          <span>
-            {page + 1} / {query.data.totalPages}
-          </span>
-          <Button
-            variant="outline"
-            disabled={page + 1 >= query.data.totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Mais avaliações
-          </Button>
-        </nav>
+        </div>
       )}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          className="reviews-modal"
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            trigger.current?.focus();
+          }}
+        >
+          <DialogTitle>Todas as avaliações</DialogTitle>
+          <DialogDescription>
+            Leia os comentários completos dos nossos hóspedes.
+          </DialogDescription>
+          <div className="reviews-modal-scroll">
+            {all.isPending ? (
+              <Loading />
+            ) : all.isError ? (
+              <Failure error={all.error} retry={() => all.refetch()} />
+            ) : (
+              <>
+                <div className="review-grid">
+                  {all.data.pages
+                    .flatMap((p) => p.content)
+                    .map((review) => (
+                      <ReviewCard key={review.id} review={review} />
+                    ))}
+                </div>
+                {all.hasNextPage && (
+                  <div className="review-pagination">
+                    <Button
+                      disabled={all.isFetchingNextPage}
+                      onClick={() => all.fetchNextPage()}
+                    >
+                      {all.isFetchingNextPage
+                        ? "Carregando…"
+                        : "Carregar mais avaliações"}
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

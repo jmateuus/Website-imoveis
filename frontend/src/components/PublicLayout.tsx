@@ -94,6 +94,7 @@ export default function PublicLayout() {
               Início
             </NavLink>
             <NavLink to="/imoveis">Explorar hospedagens</NavLink>
+            <NavLink to="/vivencias">Vivências</NavLink>
             <NavLink to="/contatos">Contatos</NavLink>
             {contact && (
               <Button asChild variant="outline">

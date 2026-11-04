@@ -5,6 +5,10 @@ import Home from "@/pages/Home";
 import Catalog from "@/pages/Catalog";
 import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/Feedback";
+const Experiences = lazy(() => import("@/pages/Experiences"));
+const ExperienceDetail = lazy(() => import("@/pages/ExperienceDetail"));
+const AdminExperiences = lazy(() => import("@/pages/admin/Experiences"));
+const ExperienceEditor = lazy(() => import("@/pages/admin/ExperienceEditor"));
 const Contacts = lazy(() => import("@/pages/Contacts"));
 const PropertyDetail = lazy(() => import("@/pages/PropertyDetail"));
 const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"));
@@ -32,6 +36,8 @@ export default function App() {
         <Route element={<PublicLayout />}>
           <Route index element={<Home />} />
           <Route path="imoveis" element={<Catalog />} />
+          <Route path="vivencias" element={<Experiences />} />
+          <Route path="vivencias/:id" element={<ExperienceDetail />} />
           <Route path="contatos" element={<Contacts />} />
           <Route path="imoveis/:slug" element={<PropertyDetail />} />
           <Route path="*" element={<NotFound />} />
@@ -42,6 +48,9 @@ export default function App() {
           <Route path="imoveis" element={<Properties />} />
           <Route path="imoveis/novo" element={<PropertyEditor />} />
           <Route path="imoveis/:id" element={<PropertyEditor />} />
+          <Route path="vivencias" element={<AdminExperiences />} />
+          <Route path="vivencias/nova" element={<ExperienceEditor />} />
+          <Route path="vivencias/:id" element={<ExperienceEditor />} />
           <Route path="configuracoes" element={<Settings />} />
         </Route>
       </Routes>

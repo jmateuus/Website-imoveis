@@ -64,9 +64,16 @@ Quando a API ou os testes Maven executarem fora do Docker, exponha o banco usand
 
 ## Funcionalidades
 
+- **Vivências**: feed público em `/vivencias`, com detalhes, fotos/vídeos,
+  relato, duração da estadia, hospedagem e avaliação do cliente. CRUD em
+  **Admin → Vivências**, com rascunho/publicação e gerenciamento de mídias.
+  Consulte [o guia de vivências e avaliações](docs/vivencias.md).
+
 - Avaliações de hóspedes na home, com foto, nome, nota de 0 a 5, comentário,
   hospedagem e contato opcional. Cadastro, edição e exclusão em **Configurações →
   Avaliações de hóspedes**. Um contato `@usuario` gera um link para o Instagram.
+  A home mostra até seis avaliações; o botão **Visualizar todas as avaliações**
+  abre um modal amplo com os comentários completos e carregamento de mais itens.
   A média e a contagem são calculadas no banco; a seção só aparece após o primeiro
   cadastro. Consulte [o guia de avaliações](docs/avaliacoes.md).
 

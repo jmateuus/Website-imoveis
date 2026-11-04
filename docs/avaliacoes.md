@@ -4,7 +4,11 @@ A seção de apresentação “Mais tempo para viver bons momentos” foi substi
 pelas avaliações na home. Layout com três colunas em desktop, duas em tablet e
 uma em celular. A seção fica oculta sem cadastros; não há depoimentos de exemplo
 em produção. A média inclui notas zero e considera todos os cadastros, não apenas
-a página atual. As avaliações mais recentes aparecem primeiro, com paginação.
+a página atual. As seis avaliações mais recentes aparecem na home. Quando houver
+mais, **Visualizar todas as avaliações** abre um modal amplo, com comentários
+completos e **Carregar mais avaliações** até chegar ao último cadastro. O título
+e o fechamento permanecem disponíveis enquanto o conteúdo interno rola. Ao fechar,
+o foco retorna ao botão que abriu o modal.
 
 ## Administração
 

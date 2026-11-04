@@ -1,5 +1,141 @@
 @import "tailwindcss";
 
+.reviews-modal {
+  width: min(1120px, calc(100vw - 32px));
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.reviews-modal-scroll {
+  overflow-y: auto;
+  min-height: 0;
+  margin-top: 20px;
+}
+.reviews-modal > h2,
+.reviews-modal > p {
+  flex-shrink: 0;
+}
+.reviews-modal .review-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 24px;
+}
+.reviews-modal .review-card {
+  align-self: start;
+}
+.experience-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+.experience-card {
+  border: 1px solid #e4eff3;
+  border-radius: 18px;
+  overflow: hidden;
+  min-width: 0;
+}
+.experience-cover {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #e4eff3;
+}
+.experience-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-orientation: from-image;
+}
+.experience-card-body {
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+}
+.experience-card-body h2 {
+  font-size: 21px;
+  font-family: Georgia, serif;
+  overflow-wrap: anywhere;
+}
+.experience-card-body p {
+  color: #5d7485;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.experience-card .review-person img {
+  width: 36px;
+  height: 36px;
+}
+.experiences-page h1,
+.experience-detail h1 {
+  font-family: Georgia, serif;
+  font-size: clamp(30px, 4vw, 44px);
+  color: #064b73;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.experience-duration {
+  margin: 18px 0 24px;
+  color: #5d7485;
+  overflow-wrap: anywhere;
+}
+.experience-detail-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 48px;
+  margin-top: 36px;
+}
+.experience-detail-columns h2 {
+  font-family: Georgia, serif;
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+.experience-detail-columns .description-text {
+  margin-bottom: 28px;
+  overflow-wrap: anywhere;
+}
+.experience-form fieldset {
+  border: 0;
+  min-width: 0;
+  padding: 0;
+}
+.experience-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 18px 0;
+}
+.experience-form h2 {
+  margin: 28px 0 18px;
+}
+.experience-form input[type="file"] {
+  max-width: 100%;
+}
+.experience-form .experience-publish {
+  flex-direction: row;
+  align-items: center;
+}
+.experience-form .experience-publish input {
+  width: auto;
+}
+@media (max-width: 900px) {
+  .experience-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .experience-detail-columns {
+    gap: 24px;
+  }
+}
+@media (max-width: 600px) {
+  .experience-grid,
+  .experience-detail-columns,
+  .reviews-modal .review-grid {
+    grid-template-columns: 1fr;
+  }
+  .reviews-modal {
+    padding: 24px 16px;
+  }
+}
+
 .review-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
